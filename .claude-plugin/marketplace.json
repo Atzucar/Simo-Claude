@@ -1,0 +1,11 @@
+{
+  "name": "simo-claude",
+  "owner": { "name": "Simone" },
+  "plugins": [
+    {
+      "name": "next-steps-plus",
+      "source": "./next-steps-plus",
+      "description": "Barra sobre el prompt: caché, contexto, límites, coste, siguientes pasos y botones Handoff y Detalles."
+    }
+  ]
+}
