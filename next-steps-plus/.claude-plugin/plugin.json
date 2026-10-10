@@ -1,0 +1,41 @@
+{
+  "name": "next-steps-plus",
+  "version": "0.1.0",
+  "description": "Basado en next-steps de Thariq Shihipar: barra de estado (caché, contexto, límites, coste), siguientes pasos y botón Handoff.",
+  "author": {
+    "name": "Thariq Shihipar"
+  },
+  "license": "MIT",
+  "keywords": [
+    "suggestions",
+    "next-steps",
+    "prompt",
+    "function-hooks",
+    "ui",
+    "handoff",
+    "cache"
+  ],
+  "userConfig": {
+    "minAnswerChars": {
+      "type": "number",
+      "title": "Shortest answer to suggest after",
+      "description": "Skip suggestions after answers shorter than this many characters.",
+      "required": false,
+      "default": 80
+    },
+    "suggestSkills": {
+      "type": "boolean",
+      "title": "Suggest skills and slash commands",
+      "description": "Tell the suggester which skills and slash commands this session has, so a suggestion can be one of them.",
+      "required": false,
+      "default": true
+    },
+    "cacheMinutes": {
+      "type": "number",
+      "title": "Minutos de vida de la caché",
+      "description": "Cuánto dura la caché de prompts desde mi última respuesta: 60 con la caché de 1 hora, 5 con la normal.",
+      "required": false,
+      "default": 60
+    }
+  }
+}
