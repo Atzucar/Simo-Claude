@@ -1,9 +1,9 @@
 ---
-name: facturas-obra
-description: Procesa un PDF escaneado con muchas facturas de obra mezcladas - lo parte en facturas individuales, lee los datos y la anotación manuscrita (concepto y proyecto), renombra cada factura, la guarda en carpetas Trimestre/Proyecto, la cruza con el Excel de gastos con tarjeta de los directores de obra y con el export del ERP, y genera los Excel de pendientes y de pagos del transportista. Úsala siempre que el usuario hable de facturas escaneadas, separar/renombrar facturas, clasificar facturas por proyecto o trimestre, conciliar facturas con el Excel de directores de obra o con el ERP, o facturas que faltan.
+name: facturas-contabilidad-motiva
+description: [Motiva] Procesa un PDF escaneado con muchas facturas de obra mezcladas - lo parte en facturas individuales, lee los datos y la anotación manuscrita (concepto y proyecto), renombra cada factura, la guarda en carpetas Trimestre/Proyecto, la cruza con el Excel de gastos con tarjeta de los directores de obra y con el export del ERP, y genera los Excel de pendientes y de pagos del transportista. Úsala siempre que el usuario hable de facturas escaneadas, separar/renombrar facturas, clasificar facturas por proyecto o trimestre, conciliar facturas con el Excel de directores de obra o con el ERP, o facturas que faltan.
 ---
 
-# Facturas de obra
+# Facturas contabilidad, Motiva
 
 Todo el trabajo se hace sobre una carpeta de trabajo que el usuario indica (su escritorio). Si no la ha indicado, pregúntala antes de empezar. Las tres reglas de fondo:
 
