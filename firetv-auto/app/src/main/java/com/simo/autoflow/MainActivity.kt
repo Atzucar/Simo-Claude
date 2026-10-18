@@ -8,6 +8,10 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.view.View
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.concurrent.thread
 
 object Session { var items: List<Item> = emptyList() }
@@ -20,7 +24,10 @@ class MainActivity : Activity() {
     private lateinit var vpnChip: TextView
     private lateinit var pTitle: TextView
     private lateinit var pCount: TextView
+    private lateinit var updated: TextView
+    private lateinit var warn: TextView
     private var filter = "all"
+    private var firstLoad = true
 
     override fun onCreate(b: Bundle?) {
         super.onCreate(b)
@@ -33,12 +40,17 @@ class MainActivity : Activity() {
         header.addView(Ui.tv(c, "Auto Flow", 15f, Ui.TEXT, true), Ui.lp(0, -2, 1f))
         vpnChip = Ui.pill(c, "", Ui.CHIP, Ui.SOFT)
         accChip = Ui.pill(c, "", Ui.CHIP, Ui.SOFT)
+        updated = Ui.tv(c, "", 12f, Ui.MUTED)
+        header.addView(updated, Ui.lp(-2, -2, r = Ui.dp(c, 12)))
+        header.addView(filterChip(c, "↻ Recargar", false) { refresh() }, Ui.lp(-2, -2, r = Ui.dp(c, 8)))
         header.addView(vpnChip, Ui.lp(-2, -2, r = Ui.dp(c, 8)))
         header.addView(accChip)
         root.addView(header)
 
         root.addView(Ui.tv(c, "¿Qué quieres ver?", 36f, Ui.TEXT, true), Ui.lp(-2, -2, t = Ui.dp(c, 16), b = Ui.dp(c, 12)))
 
+        warn = Ui.tv(c, "", 12f, Ui.RED).apply { visibility = View.GONE }
+        root.addView(warn, Ui.lp(-2, -2, b = Ui.dp(c, 8)))
         chipsRow = LinearLayout(c)
         root.addView(chipsRow, Ui.lp(-2, -2, b = Ui.dp(c, 12)))
 
@@ -62,12 +74,22 @@ class MainActivity : Activity() {
 
         buildChips()
         pTitle.text = "Cargando..."
+        refresh()
+    }
+
+    private fun refresh() {
+        updated.text = "Actualizando…"
         thread {
-            val items = runCatching { Catalog.load(c) }.getOrNull()
+            val r = runCatching { Catalog.load(this) }.getOrNull()
             runOnUiThread {
-                if (items == null) { pTitle.text = "Error leyendo el catalogo"; return@runOnUiThread }
-                Session.items = items
-                buildList(focusFirst = true)
+                if (r == null) {
+                    warn.text = "Error leyendo el catálogo (JSON no válido)."; warn.visibility = View.VISIBLE
+                    updated.text = ""; pTitle.text = "Sin contenido"; return@runOnUiThread
+                }
+                Session.items = r.items
+                warn.text = r.warning ?: ""; warn.visibility = if (r.warning == null) View.GONE else View.VISIBLE
+                updated.text = "Actualizado a las " + SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+                buildList(focusFirst = firstLoad); firstLoad = false
             }
         }
     }
