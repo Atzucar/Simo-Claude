@@ -17,21 +17,40 @@ class FlowService : AccessibilityService() {
     override fun onAccessibilityEvent(e: AccessibilityEvent?) {}
     override fun onInterrupt() {}
 
+    fun cancel() { job?.cancel() }
+
     fun runFlow(streamUrl: String) {
         job?.cancel()
+        for (i in steps.indices) steps[i] = PENDING
+        error = null; notifyChange()
         job = scope.launch {
+            var cur = 0
             try {
-                connectVpn()
+                cur = 0; set(0, ACTIVE)
+                launchApp(Config.PROTON_PKG)
+                delay(4000)
+                val already = waitFor(Config.CONNECTED_TEXTS, 3000) != null && findText(Config.COUNTRY_TEXTS) != null
+                set(0, DONE)
+                cur = 1; set(1, ACTIVE)
+                if (!already) connectVpn()
+                vpnOk = true
+                set(1, DONE)
+                cur = 2; set(2, ACTIVE)
                 playStream(streamUrl)
-            } catch (e: Exception) { Log.e(TAG, "Flujo fallido: ${e.message}") }
+                set(2, DONE)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Flujo fallido: ${e.message}")
+                error = e.message; set(cur, ERROR)
+            }
         }
     }
 
+    private fun set(i: Int, st: Int) { steps[i] = st; notifyChange() }
+    private fun notifyChange() { onChange?.invoke() }
+
     private suspend fun connectVpn() {
-        launchApp(Config.PROTON_PKG)
-        delay(4000)
-        // Si ya esta conectado y a Rusia no hacemos nada mas que seguir.
-        if (waitFor(Config.CONNECTED_TEXTS, 3000) != null && findText(Config.COUNTRY_TEXTS) != null) return
         // Buscar Rusia en la lista (desplazando) y pulsarla.
         val country = scrollFind(Config.COUNTRY_TEXTS) ?: error("No encuentro Rusia en ProtonVPN")
         click(country)
@@ -93,5 +112,14 @@ class FlowService : AccessibilityService() {
         n.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
     }
 
-    companion object { const val TAG = "AutoFlow"; var instance: FlowService? = null }
+    companion object {
+        const val TAG = "AutoFlow"
+        const val PENDING = 0; const val ACTIVE = 1; const val DONE = 2; const val ERROR = 3
+        val STEP_NAMES = listOf("Abriendo ProtonVPN", "Conectando a Rusia", "Abriendo AceStream")
+        val steps = IntArray(3)
+        @Volatile var error: String? = null
+        @Volatile var vpnOk = false
+        var instance: FlowService? = null
+        var onChange: (() -> Unit)? = null
+    }
 }

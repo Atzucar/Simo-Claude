@@ -4,8 +4,8 @@ import android.content.Context
 import org.json.JSONArray
 import java.net.URL
 
-data class Link(val name: String, val url: String)
-data class Item(val title: String, val links: List<Link>)
+data class Link(val name: String, val url: String, val quality: String?, val peers: Int?)
+data class Item(val title: String, val type: String, val time: String?, val links: List<Link>)
 
 object Catalog {
     /** Descarga Config.CATALOG_URL; si falla o esta vacia, usa assets/catalog.json. Llamar fuera del hilo principal. */
@@ -19,9 +19,16 @@ object Catalog {
         return (0 until arr.length()).map { i ->
             val o = arr.getJSONObject(i)
             val ls = o.getJSONArray("links")
-            Item(o.getString("title"), (0 until ls.length()).map {
-                val l = ls.getJSONObject(it); Link(l.getString("name"), l.getString("url"))
-            })
+            Item(
+                o.getString("title"),
+                o.optString("type", "evento"),
+                o.optString("time").ifBlank { null },
+                (0 until ls.length()).map {
+                    val l = ls.getJSONObject(it)
+                    Link(l.getString("name"), l.getString("url"),
+                        l.optString("quality").ifBlank { null },
+                        if (l.has("peers")) l.getInt("peers") else null)
+                })
         }
     }
 }
