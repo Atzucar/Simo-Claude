@@ -41,7 +41,7 @@ class ProgressActivity : Activity() {
                 else -> { v.text = "○  $name"; v.setTextColor(Ui.MUTED); v.background = Ui.rounded(this, Ui.CARD, 12) }
             }
         }
-        info.text = FlowService.error ?: if (st.all { it == FlowService.DONE }) "Listo" else ""
-        info.setTextColor(if (FlowService.error != null) Ui.RED else Ui.SOFT)
+        info.text = FlowService.lastError ?: if (st.all { it == FlowService.DONE }) "Listo" else ""
+        info.setTextColor(if (FlowService.lastError != null) Ui.RED else Ui.SOFT)
     }
 }

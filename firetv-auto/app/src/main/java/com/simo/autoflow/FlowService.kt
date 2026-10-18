@@ -22,7 +22,7 @@ class FlowService : AccessibilityService() {
     fun runFlow(streamUrl: String) {
         job?.cancel()
         for (i in steps.indices) steps[i] = PENDING
-        error = null; notifyChange()
+        lastError = null; notifyChange()
         job = scope.launch {
             var cur = 0
             try {
@@ -42,7 +42,7 @@ class FlowService : AccessibilityService() {
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Flujo fallido: ${e.message}")
-                error = e.message; set(cur, ERROR)
+                lastError = e.message; set(cur, ERROR)
             }
         }
     }
@@ -117,7 +117,7 @@ class FlowService : AccessibilityService() {
         const val PENDING = 0; const val ACTIVE = 1; const val DONE = 2; const val ERROR = 3
         val STEP_NAMES = listOf("Abriendo ProtonVPN", "Conectando a Rusia", "Abriendo AceStream")
         val steps = IntArray(3)
-        @Volatile var error: String? = null
+        @Volatile var lastError: String? = null
         @Volatile var vpnOk = false
         var instance: FlowService? = null
         var onChange: (() -> Unit)? = null
