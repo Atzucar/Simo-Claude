@@ -1,9 +1,12 @@
 # Fire TV Auto Flow
-Automatiza: ProtonVPN -> Rusia -> navegador -> pagina -> enlace (AceStream se abre solo).
+App con lista de contenidos (peliculas / eventos) -> lista de enlaces AceStream -> al elegir uno:
+conecta ProtonVPN a Rusia y abre el enlace en AceStream.
 
-1. Edita `app/src/main/java/com/simo/autoflow/Config.kt` (URL, texto del enlace, paquetes).
-2. Compila: GitHub Actions "Build APK" (descarga `app-debug.apk`) o `gradle assembleDebug`.
-3. Instala en el Fire Stick: `adb connect IP:5555 && adb install app-debug.apk`
-4. Activa el servicio: `adb shell settings put secure enabled_accessibility_services com.simo.autoflow/com.simo.autoflow.FlowService && adb shell settings put secure accessibility_enabled 1`
-   (o Ajustes > Accesibilidad > Auto Flow).
-5. Abre "Auto Flow" y pulsa INICIAR. Para lanzarlo sin mando: `adb shell am start -n com.simo.autoflow/.MainActivity`.
+## Catalogo
+`app/src/main/assets/catalog.json` (incluido en la app) o un JSON remoto en `Config.CATALOG_URL`:
+`[{"title":"...","links":[{"name":"...","url":"acestream://HASH"}]}]`
+
+## Uso
+1. Compila (GitHub Actions "Build APK" o `gradle assembleDebug`) e instala: `adb install app-debug.apk`
+2. Activa accesibilidad: `adb shell settings put secure enabled_accessibility_services com.simo.autoflow/com.simo.autoflow.FlowService && adb shell settings put secure accessibility_enabled 1`
+3. Abre "Auto Flow", elige contenido, elige enlace.

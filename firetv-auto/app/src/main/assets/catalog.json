@@ -1,0 +1,15 @@
+[
+  {
+    "title": "Ejemplo: Evento deportivo",
+    "links": [
+      { "name": "Canal 1 - HD", "url": "acestream://PON_AQUI_EL_HASH_1" },
+      { "name": "Canal 2 - SD", "url": "acestream://PON_AQUI_EL_HASH_2" }
+    ]
+  },
+  {
+    "title": "Ejemplo: Pelicula",
+    "links": [
+      { "name": "Fuente 1", "url": "acestream://PON_AQUI_EL_HASH_3" }
+    ]
+  }
+]

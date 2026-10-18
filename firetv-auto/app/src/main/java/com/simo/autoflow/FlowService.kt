@@ -17,12 +17,12 @@ class FlowService : AccessibilityService() {
     override fun onAccessibilityEvent(e: AccessibilityEvent?) {}
     override fun onInterrupt() {}
 
-    fun runFlow() {
+    fun runFlow(streamUrl: String) {
         job?.cancel()
         job = scope.launch {
             try {
                 connectVpn()
-                openLink()
+                playStream(streamUrl)
             } catch (e: Exception) { Log.e(TAG, "Flujo fallido: ${e.message}") }
         }
     }
@@ -42,14 +42,10 @@ class FlowService : AccessibilityService() {
         delay(2000)
     }
 
-    private suspend fun openLink() {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Config.PAGE_URL))
-            .setPackage(Config.BROWSER_PKG).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        delay(6000)
-        val link = scrollFind(Config.LINK_TEXTS) ?: error("No encuentro el enlace")
-        click(link)
-        // AceStream se abre solo via intent del navegador; si pide elegir app, pulsar AceStream.
-        waitFor(listOf("Ace Stream", "AceStream", "Ace Player"), 8000)?.let { click(it) }
+    private suspend fun playStream(url: String) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        // Si Fire TV pregunta con que app abrirlo, elegir AceStream.
+        waitFor(listOf("Ace Stream", "AceStream", "Ace Player"), 6000)?.let { click(it) }
     }
 
     // ---- utilidades ----
