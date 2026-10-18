@@ -13,7 +13,7 @@ object Ui {
     val CARD = 0xFF171C24.toInt()
     val CARD2 = 0xFF252C37.toInt()
     val CHIP = 0xFF1A2029.toInt()
-    val ACCENT = 0xFF6D4AFF.toInt()
+    val ACCENT = 0xFFE8590C.toInt()
     val TEXT = 0xFFF2F4F8.toInt()
     val TEXT2 = 0xFFD5DBE5.toInt()
     val SOFT = 0xFFA9B3C2.toInt()
