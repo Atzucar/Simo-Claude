@@ -1,0 +1,7 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>:root{--pill:#fff;--pill-ink:#10213F;--ar:#3A4660;--draw:#E7ECF4;--ink:#10213F}body{margin:0;background:#fff}
+.v3d{position:relative;width:900px;height:560px;overflow:hidden;background:radial-gradient(ellipse at 50% 85%,#D9E0EC,#EEF2F8 70%)}
+.v3d canvas{position:absolute;inset:0;width:100%;height:100%}.v3d .ov{position:absolute;inset:0;width:100%;height:100%}
+.ctl,.hint{display:none!important}.cl{font:700 15px 'Barlow Condensed','Arial Narrow',Arial,sans-serif}.cb{font:800 15px 'Barlow Condensed',Arial,sans-serif}.cl2{font:600 12.5px Inter,sans-serif}</style></head><body><div id="defs"></div><div id="stage"></div>
+<script>

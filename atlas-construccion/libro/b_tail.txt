@@ -1,0 +1,10 @@
+
+document.getElementById('defs').innerHTML=DEFS;
+window.renderFig=function(i){
+  const f=FIGS[i];const st=document.getElementById('stage');st.innerHTML='<div class="v3d" id="fig"><div class="fb"></div><canvas></canvas><svg class="ov"></svg><div class="ctl"><button data-a="spin"></button></div><div class="hint"></div></div>';
+  const el=document.getElementById('fig');window.V=new View3D(el,{d:{build:f.build,parts:f.parts}});V.mount();
+  if(!V.on)return 'fail';V.spin=false;if(f.yaw!==undefined)V.yaw=f.yaw;if(f.pitch!==undefined)V.pitch=f.pitch;
+  if(f.ex!==undefined){V.ex=V.exT=f.ex}
+  V.static=true;V.resize();return 'ok';
+};
+</script></body></html>
