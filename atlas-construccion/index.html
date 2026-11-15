@@ -1,0 +1,729 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Atlas de la construcción</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: cabecera azul + mapa de capítulos + fichas verticales de tres bloques (esquema, paso a paso, lo que no / cómo va) */
+:root{
+  --bg:#EDF0F5; --card:#FFFFFF; --ink:#10213F; --muted:#566682;
+  --navy:#0E2A57; --navy-ink:#FFFFFF; --orange:#F26A1B; --orange-ink:#FFFFFF;
+  --green:#1B8F50; --green-bg:#E5F4EB; --red:#D32F2F; --red-bg:#FCE9E9;
+  --line:#D3DAE6; --draw:#E7ECF4; --pill:#FFFFFF; --pill-ink:#10213F; --chip:#E3E9F3; --ar:#3A4660;
+  --head:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+  --body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A1322; --card:#0F1B30; --ink:#E8EDF7; --muted:#9DABC5; --navy:#1A3D78;
+  --green:#3FCB82; --green-bg:#10301F; --red:#FF7070; --red-bg:#3A1818;
+  --line:#23344F; --draw:#16233B; --chip:#1B2B47; --ar:#C3D0E8; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1322; --card:#0F1B30; --ink:#E8EDF7; --muted:#9DABC5; --navy:#1A3D78;
+  --green:#3FCB82; --green-bg:#10301F; --red:#FF7070; --red-bg:#3A1818;
+  --line:#23344F; --draw:#16233B; --chip:#1B2B47; --ar:#C3D0E8; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1120px;margin:0 auto;padding-block:0 56px}
+header.top{background:var(--navy);color:var(--navy-ink);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));
+  padding:34px max(16px,env(safe-area-inset-left,0px)) 30px}
+header.top .in{max-width:1120px;margin:0 auto}
+.kicker{font:700 15px var(--head);letter-spacing:.14em;text-transform:uppercase;color:#FFB07F}
+h1{font:800 clamp(38px,7vw,72px)/.95 var(--head);text-transform:uppercase;margin:6px 0 12px;text-wrap:balance}
+h1 em{font-style:normal;color:var(--orange)}
+header.top p{max-width:68ch;margin:0;color:#D6E0F2}
+.legend{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:18px;font:600 15px var(--head);letter-spacing:.04em;text-transform:uppercase}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.dot{width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;display:inline-grid;place-items:center;font:700 13px var(--head)}
+.mapa{margin-top:26px}
+.mapa h2,.sec-h{font:800 30px/1 var(--head);text-transform:uppercase;letter-spacing:.01em;margin:0 0 12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.tile{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center}
+.tile:hover{border-color:var(--orange)}
+.tile:focus-visible,.chip:focus-visible,.search:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.tile b{font:800 28px/1 var(--head);color:var(--orange);grid-row:span 2}
+.tile span{font:700 15px/1.1 var(--head);text-transform:uppercase}
+.tile small{color:var(--muted);font-size:12px}
+.bar-tools{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding:12px 0 10px;margin-top:22px;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.search{width:100%;font:500 15px var(--body);padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+.chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto;padding-bottom:4px}
+.chip{all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:5px 11px;border-radius:99px;background:var(--chip);font:700 14px var(--head);letter-spacing:.04em;text-transform:uppercase}
+.chip[aria-pressed="true"]{background:var(--orange);color:#fff}
+.count{color:var(--muted);font-size:13px;margin-top:6px}
+.nota{margin-top:14px;font-size:13px;color:var(--muted);max-width:90ch}
+/* ficha */
+.ficha{background:var(--card);border:1px solid var(--line);border-radius:8px;margin-top:26px;overflow:hidden;scroll-margin-top:150px}
+.fh{padding:20px 22px 16px;display:grid;gap:6px}
+.fh .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:700 15px var(--head);letter-spacing:.08em;text-transform:uppercase;color:var(--orange)}
+.fh .meta .cap{background:var(--chip);color:var(--ink);padding:2px 9px;border-radius:4px}
+.fh h3{margin:0;font:800 clamp(30px,5vw,46px)/1 var(--head);text-transform:uppercase;text-wrap:balance}
+.fh p{margin:0;color:var(--muted);max-width:75ch}
+.bar{background:var(--navy);color:var(--navy-ink);display:flex;align-items:center;gap:14px;padding:8px 22px;font:800 26px/1 var(--head);text-transform:uppercase;letter-spacing:.02em}
+.bar i{font-style:normal;padding-right:14px;border-right:2px solid rgba(255,255,255,.35)}
+.draw{background:var(--draw);padding:6px}
+.draw svg{display:block;width:100%;height:auto;max-height:560px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-bottom:1px solid var(--line)}
+.step{padding:16px 14px 18px;border-right:1px solid var(--line);display:grid;gap:6px;align-content:start;min-width:0}
+.step:last-child{border-right:0}
+.step .dot{width:30px;height:30px;font-size:18px}
+.step b{font:800 19px/1.05 var(--head);text-transform:uppercase}
+.step p{margin:0;font-size:13.5px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:1fr 1fr}
+.colh{display:flex;align-items:center;gap:10px;padding:8px 22px;font:800 28px/1 var(--head);text-transform:uppercase}
+.colh.no{background:var(--red-bg);color:var(--red)}.colh.si{background:var(--green-bg);color:var(--green)}
+.pairs{display:grid;grid-template-columns:1fr 1fr}
+.cell{padding:14px 22px;display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;border-top:1px solid var(--line);min-width:0}
+.cell.no{background:color-mix(in srgb,var(--red-bg) 40%,transparent)}
+.cell.si{background:color-mix(in srgb,var(--green-bg) 40%,transparent)}
+.mk{width:30px;height:30px}
+.cell p{margin:0;font-weight:600;font-size:14.5px}
+.foot{display:grid;grid-template-columns:1fr 2fr;border-top:1px solid var(--line)}
+.foot>div{padding:16px 22px;min-width:0}
+.foot h4{margin:0 0 8px;font:800 20px/1 var(--head);text-transform:uppercase;color:var(--orange)}
+.foot p{margin:0;font-size:14px}
+.pchips{display:flex;flex-wrap:wrap;gap:6px}
+.pchips span{font-size:12px;background:var(--chip);border-radius:4px;padding:3px 8px;display:inline-flex;gap:6px;align-items:baseline}
+.pchips span b{font:700 13px var(--head);color:var(--orange)}
+.vacio{margin-top:26px;padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px}
+.cl{font:700 14.5px 'Barlow Condensed','Arial Narrow',Arial,sans-serif}
+.cl2{font:600 12.5px 'Inter',sans-serif}
+.cb{font:800 15px 'Barlow Condensed',Arial,sans-serif}
+@media (max-width:860px){
+  .steps{grid-template-columns:repeat(2,1fr)}.step:nth-child(2n){border-right:0}.step{border-bottom:1px solid var(--line)}
+  .step:last-child{grid-column:span 2;border-bottom:0}
+  .foot{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .cols{display:none}.pairs{grid-template-columns:1fr}
+  .colh,.bar,.fh,.cell,.foot>div{padding-left:16px;padding-right:16px}
+  .colh.si{margin-top:0}
+  .draw svg{min-width:640px}.draw{overflow-x:auto}
+}
+@media print{.bar-tools,.mapa{display:none}.ficha{break-inside:avoid;margin-top:12px}body::before{display:none}}
+</style>
+</head><body>
+<div id="defs"></div>
+<header class="top"><div class="in">
+  <div class="kicker">Atlas de obra · Motiva Construcción</div>
+  <h1>Atlas de la <em>construcción</em></h1>
+  <p><span id="nF">0</span> fichas ilustradas que recorren, capítulo a capítulo, los trabajos de tu presupuesto base: qué es, cómo se ejecuta y qué se comprueba antes de tapar.</p>
+  <div class="legend"><span><i class="dot">1</i> Elemento numerado en el esquema</span><span><i class="dot" style="background:#1B8F50">✓</i> Cómo va</span><span><i class="dot" style="background:#D32F2F">✕</i> Lo que no</span></div>
+</div></header>
+<div class="wrap">
+<section class="mapa"><h2>Mapa del presupuesto</h2><div class="tiles" id="tiles"></div></section>
+<div class="bar-tools" id="tools">
+  <input class="search" id="q" type="search" placeholder="Buscar un trabajo o una partida: pladur, solado, rociador…" aria-label="Buscar en el atlas">
+  <div class="chips" id="chips"></div><div class="count" id="count"></div>
+</div>
+<div id="fichas"></div>
+<div class="vacio" id="vacio" hidden>Ninguna ficha coincide con esa búsqueda. Prueba con otra palabra o elige «Todo».</div>
+<p class="nota">Las fichas son una guía de buena práctica en obra y no sustituyen al proyecto. Prevalecen siempre el proyecto, el CTE, la normativa aplicable y la ficha técnica de cada fabricante. Las cifras (separaciones, espesores, pendientes) son valores habituales de referencia.</p>
+</div>
+<script>
+const BUDGET=[["00", "DIRECCIÓN FACULTATIVA DE OBRA"], ["00", "DIRECCIÓN TÉCNICA DE OBRA"], ["00", "SERVICIO DE APOYO TÉCNICO DE OBRA y REVISIÓN SEMANAL DE OBRA"], ["01", "RETIRADA DE GRAVA"], ["01", "DEMOLICIÓN IMPERMEABILIZACIÓN"], ["01", "FORJADO"], ["01", "DEMOLICIONES INTERIORES"], ["01", "DESMONTAJE DE CRISTALERAS EXTERIORES DE VIDRIO"], ["01", "RETIRADA DE VINILOS EN CRISTALERA EXTERIOR"], ["01", "RETIRADA DE TOLDOS - no reutilizable"], ["01", "DESMONTAJE SOLADO DE TARIMA FLOTANTE"], ["01", "DEMOLICIÓN DE SOLADOS DE LINÓLEO TIPO PVC"], ["01", "DEMOLICIÓN DE CERÁMICOS"], ["01", "DEMOLICIÓN DE ALICATADOS"], ["01", "DEMOLICIÓN DE TABIQUES PLADUR"], ["01", "DEMOLICIÓN DE TABIQUES DE MAMPOSTERIA - HASTA 12CM DE ESPESOR"], ["01", "DEMOLICIÓN DE TABIQUES DE MAMPOSTERIA - HASTA 30CM DE ESPESOR"], ["01", "DESMONTAJE DE FALSO TECHO"], ["01", "DEMOLICIÓN DE MOLDURAS"], ["01", "DESMONTAJE DE PUERTAS DE MADERA"], ["01", "DESMONTAJE DE PUERTAS ABATIBLE DE VIDRIO"], ["01", "DESMONTAJE DE MÁMPARAS INTERIORES - NO REUTILIZABLES"], ["01", "DESMONTAJE DE PUERTAS DE VIDRIO INTERIOR EN MAMPARAS"], ["01", "DESMONTAJE DE RODAPIÉ"], ["01", "DESMONTAJE MUEBLES - NO REUTILIZABLES"], ["01", "DEMOLICIÓN MOSTRADOR"], ["01", "DEMOLICIÓN DE DESNIVEL SUELO RECRECIDO"], ["01", "DESMONTAJE CELOSIA TIPO PAVÉS"], ["01", "DESMONTAJE ARMARIOS EMPOTRADOS"], ["01", "DESMONTAJE Y ANULACIÓN DE PUNTO DE INSTALACIÓN DE FONTANERÍA NO REUTILIZABLE"], ["01", "DESMONTAJE DE LUMINARIAS EXISTENTES NO REUTILIZABLES EN TECHO"], ["01", "DESMONTAJE DE MECANISMO Y ANULACIÓN DE PUNTOS DE LUZ Y ENCHUFES"], ["01", "DESMONTAJE DE EQUIPOS DE CLIMATIZACIÓN REUTILIZABLES"], ["01", "RETIRADA DE ELEMENTOS DECORATIVOS"], ["01", "DESCOMBRO Y CONTENEDORES DE OBRA"], ["01", "DESCOMBRO Y TELESACOS"], ["02", "CREACIÓN DE PENDIENTES"], ["02", "TELA ASFÁLTICA"], ["02", "MAQUINARIA"], ["02", "RECRECIDO SUELO CON MORTERO CEMENTO"], ["02", "RECRECIDO SOLADO CON CAVITI"], ["02", "NIVELADO DE SUELO CON AUTONIVELANTE"], ["02", "TABIQUE PLACA PLADUR"], ["02", "TABIQUE PLACA PLADUR HIDRÓFUGO"], ["02", "TABIQUE PLACA PLADUR CURVO"], ["02", "TABIQUE PLACA PLADUR IGNÍFUGO - RF120"], ["02", "TRASDOSADO PLACA DIRECTA"], ["02", "TRASDOSADO AUTOPORTANTE CON PERFILERÍA DE ALUMINIO"], ["02", "TABIQUE LADRILLO"], ["02", "TABIQUE MAMPOSTERIA CURVO"], ["02", "TABIQUE HUECO DOBLE CON CÁMARA - DIVISOR"], ["02", "TABIQUE MEDIANERO SEGREGACIÓN ACÚSTICO SIMPLE"], ["02", "TABIQUE MEDIANERO SEGREGACIÓN CON LADRILLO ACÚSTICO"], ["02", "TABIQUE MEDIANERO SEGREGACIÓN ACÚSTICO BASICO"], ["02", "CERRAMIENTO MURO EXTERIOR"], ["02", "FALSO TECHO PLADUR"], ["02", "FALSO TECHO PLADUR HIDRÓFUGO"], ["02", "FALSO TECHO PLADUR - IGNÍFUGO RF120"], ["02", "FOSEADO PLADUR"], ["02", "DINTEL PLADUR RECTO"], ["02", "DINTEL PLADUR CURVO"], ["02", "TABICA PLADUR CURVA"], ["02", "BANCO DE OBRA"], ["02", "RECIBIDO DE PRECERCO DE PUERTAS ABATIBLES DE MADERA"], ["02", "RECIBIDO DE ESTRUCTURA CASETTE/CASONETO PARA PUERTA CORREDERA"], ["02", "RECIBIDO DE VENTANAS NUEVAS EN FACHADA."], ["02", "SUMINISTRO E INSTALACIÓN DE AISLAMIENTO COPOPREN"], ["02", "SUMINISTRO E INSTALACIÓN DE AISLAMIENTO LANA DE ROCA"], ["02", "CONSTRUCCIÓN DE MURETE DE PLADUR CON ESTRUCTURA DE TUBULARES DE HIERRO PARA BARRA"], ["02", "CONSTRUCCIÓN DE MURETE DE PLADUR CURVO CON ESTRUCTURA DE TUBULARES DE HIERRO PARA BARRA"], ["02", "REMATES VARIOS TABIQUE"], ["02", "SUMINISTRO E INSTALACIÓN DE PROTECCIÓN DE SUELO"], ["02", "ACARREO DE MATERIALES DE OBRA"], ["02", "ANDAMIOS - POR DÍA"], ["02", "PLATAFORMA ELEVADORA DE CESTA - POR DÍA"], ["02", "PARTICIÓN INTERIOR BLOQUE HORMIGÓN"], ["02", "ELABORACIÓN DEL PLAN DE SEGURIDAD Y SALUD Y GESTIÓN DE PREVENCIÓN DE RIESGOS LABORALES"], ["02", "SALA RAYOS X"], ["03", "SUMINISTRO SOLADO PORCELÁNICO - PREMIUM"], ["03", "SUMINISTRO SOLADO PORCELÁNICO - STANDARD"], ["03", "SUMINISTRO SOLADO CERÁMICO - BASIC"], ["03", "COLOCACIÓN SOLADOS CERÁMICO/PORCELÁNICOS 30-90cm LADO LARGO"], ["03", "COLOCACIÓN SOLADOS CERÁMICO/PORCELÁNICO MENOR QUE 30cm LADO LARGO"], ["03", "COLOCACIÓN SOLADOS CERÁMICO/PORCELÁNICO MAYOR QUE 100cm LADO LARGO"], ["03", "COLOCACIÓN DE SUELO CERÁMICO EN ESCALERA"], ["03", "SUMINISTRO SUELO LAMINADO"], ["03", "COLOCACIÓN SUELO LAMINADO SIMPLE 1/2"], ["03", "COLOCACIÓN SUELO LAMINADO TERCIADO 1/3"], ["03", "COLOCACIÓN SUELO LAMINADO EN ESCALERA"], ["03", "SUMINISTRO SOLADO VINÍLICO EN CLICK - PREMIUM"], ["03", "SUMINISTRO SOLADO VINÍLICO EN CLICK - BASIC"], ["03", "SUMINISTRO SOLADO VINÍLICO EN CLICK - EXTERIOR"], ["03", "COLOCACIÓN SOLADO VINÍLICO EN CLICK"], ["03", "SUMINISTRO SOLADO VINÍLICO EN ROLLOS - PREMIUM"], ["03", "SUMINISTRO SOLADO VINÍLICO EN ROLLOS - BASIC"], ["03", "COLOCACIÓN SOLADO VINÍLICO EN ROLLOS"], ["03", "SUMINISTRO ALICATADO"], ["03", "SUMINISTRO DE MUESTRAS DE ALICATADO PERSONALIZADO"], ["03", "SUMINISTRO DE ALICATADO PERSONALIZADO"], ["03", "COLOCACIÓN ALICATADOS CERÁMICOS 30-90cm LADO LARGO"], ["03", "COLOCACIÓN ALICATADOS CERÁMICOS MENOR QUE 30cm LADO LARGO"], ["03", "COLOCACIÓN ALICATADOS CERÁMICOS MAYOR QUE 100cm LADO LARGO"], ["03", "SUMINISTRO DE MOQUETA MODULAR - MEDIO ALTO"], ["03", "COLOCACIÓN DE MOQUETA"], ["03", "SUMINISTRO E INSTALACIÓN DE EPOXI"], ["03", "SUMINISTRO E INSTALACIÓN MICROCEMENTO"], ["03", "SUMINISTRO E INSTALACIÓN SUELO DE HORMIGÓN PULIDO"], ["03", "SUMINISTRO RODAPIÉ MADERA LACADA BLANCO"], ["03", "SUMINISTRO RODAPIÉ MADERA LACADA COLOR"], ["03", "COLOCACIÓN RODAPIÉ MADERA LACADA"], ["03", "SUMINISTRO RODAPIÉ CERÁMICO"], ["03", "COLOCACIÓN RODAPIÉ CERÁMICO"], ["03", "COLOCACIÓN RODAPIÉ CERÁMICO EN ESCALERA"], ["03", "SUMINISTRO Y COLOCACIÓN RODAPIÉ MEDIA CAÑA"], ["03", "SUMINISTRO Y COLOCACIÓN DE PLETINAS PARA ENCUENTROS ENTRE SOLADOS"], ["04", "BOLETÍN DE AGUA"], ["04", "DISTRIBUCIÓN FONTANERÍA"], ["04", "INSTALACIÓN FONTANERÍA"], ["04", "INSTALACIÓN DE LOS APARATOS SANITARIOS + GRIFERÍA"], ["04", "SUMINISTRO E INSTALACIÓN DE TERMO DE 100L"], ["04", "LLAVES DE CORTE CUARTOS HÚMEDOS"], ["04", "REUBICACIÓN CONTADOR DE AGUA"], ["05", "CERTIFICADO DE GAS"], ["05", "ELABORACIÓN Y TRAMITACIÓN DE LA DOCUMENTACIÓN PARA EL PROYECTO DE LEGALIZACIÓN DE LA RECEPTORA DE GAS"], ["05", "INSTALACIÓN DE CLIMATIACIÓN POR SPLITS 1x1"], ["05", "INSTALACIÓN DE CLIMATIZACIÓN POR SPLITS 2x1"], ["05", "AIRE POR CONDUCTOS"], ["05", "RECUPERADOR DE CALOR AIRE - AIRE"], ["05", "MODIFICACIÓN DE CONDUCTOS DE CLIMATIZACIÓN EXISTENTES"], ["05", "REJILLA DE IMPULSIÓN DOBLE DEFLEXIÓN"], ["05", "REJILLA DE RETORNO"], ["05", "VENTILACIÓN FORZADA SALAS SIN VENTILACIÓN NATURAL"], ["05", "SALIDA DE HUMOS CON TUBOS EI30"], ["05", "CONEXIÓN DE CAMPANA A EXTRACCIÓN DE HUMOS"], ["05", "COLOCACIÓN RADIADOR CALEFACCIÓN. SIN MODIFICACIÓN TOMAS"], ["05", "SUMINISTRO RADIADOR CALEFACCIÓN"], ["05", "SUMINISTRO Y COLOCACIÓN RADIADOR TOALLERO MAS MODIFICACIÓN TOMAS EN MISMO PUNTO"], ["05", "DESPLAZAMIENTO DE MAQUINAS DE AIRE"], ["05", "DOS TOMAS DE GAS PARA COCINA"], ["06", "BOLETÍN ELÉCTRICO VIVIENDA"], ["06", "BOLETÍN ELÉCTRICO PARA LOCAL COMERCIAL"], ["06", "PROYECTO INGENIERÍA + TARIFA OCA (HASTA 50KW)"], ["06", "ACOMETIDA ELÉCTRICA MONOFÁSICA (HASTA 15M)"], ["06", "ACOMETIDA ELÉCTRICA TRIFÁSICA (HASTA 15M)"], ["06", "DISTRIBUCIÓN DE ELECTRICIDAD TUBERIA VISTA"], ["06", "DISTRIBUCIÓN DE ELECTRICIDAD TUBERIA OCULTA"], ["06", "SUMINISTRO Y COLOCACIÓN DE CUADRO ELÉCTRICO MONOFÁSICO PARA VIVIENDA"], ["06", "SUMINISTRO Y COLOCACIÓN DE CUADRO ELÉCTRICO MONOFÁSICO PARA LOCAL COMERCIAL"], ["06", "SUMINISTRO Y COLOCACIÓN DE CUADRO ELÉCTRICO TRIFÁSICO"], ["06", "SUMINISTRO Y COLOCACIÓN DE CUADRO ELÉCTRICO DE OBRA"], ["06", "NUEVA LÍNEA DE CIRCUÍTO MONOFÁSICO DE 10A"], ["06", "NUEVA LÍNEA DE CIRCUÍTO MONOFÁSICO DE 16A"], ["06", "NUEVA LÍNEA DE CIRCUÍTO MONOFÁSICO DE 20A"], ["06", "NUEVA LÍNEA DE CIRCUÍTO TRIFÁSICO DE 25A"], ["06", "NUEVA LÍNEA DE CIRCUÍTO TRIFÁSICO DE 40A"], ["06", "NUEVA LÍNEA DE CIRCUÍTO TRIFÁSICO DE 63A"], ["06", "PUNTO DE LUZ SENCILLO NUEVOS"], ["06", "PUNTO DE LUZ CONMUTADO"], ["06", "PUNTO DE LUZ CRUZAMIENTO"], ["06", "PUNTOS DE LUD TIRAS PERIMETRALES LED"], ["06", "TOMA DE ENCHUFE"], ["06", "TOMA DE ENCHUFE DE FUERZA"], ["06", "TOMA DE TELEFONÍA"], ["06", "TOMA DE DATOS"], ["06", "INSTALACIÓN DE TIMBRE"], ["06", "INSTALACIÓN DE TELEFONILLO O KIT VIDEOPORTERO"], ["06", "LÍNEA DE CONEXIÓN DE AIRE ACONDICIONADO"], ["06", "PUNTOS DE LUZ PARA LUCES DE EMERGENCIA"], ["06", "PUNTOS DE ELECTRICIDAD PARA CÁMARAS DE SEGURIDAD"], ["06", "SISTEMA DE MÚSICA CON ALTAVOCES INCLUIDOS"], ["07", "MONTAJE VENTANAS"], ["07", "SUMINISTRO VENTANA150X140"], ["07", "SUMINISTRO VENTANA 200X140"], ["07", "SUMINISTRO VENTANA 74X140"], ["07", "SUMINISTRO VENTANA 100x140"], ["07", "ACRISTALAMIENTO FIJO DE FACHADA NO BLINDADO"], ["07", "ACRISTALAMIENTO FIJO DE FACHADA CLIMALIT"], ["07", "ACRISTALAMIENTO FIJO DE FACHADA BLINDADO"], ["07", "INSTALACIÓN REJAS"], ["07", "REJA METÁLICA VIVIENDA PARA V 150X140"], ["07", "REJA METÁLICA VIVIENDA PARA V 200X140"], ["07", "REJA METÁLICA VIVIENDA V 100X140"], ["07", "PUERTA DE ACCESO AUTOMÁTICA EN FACHADA"], ["07", "PUERTA DE ACCESO EN VIDRIO EN FACHADA NO BLINDADO"], ["07", "PUERTA ACORAZADA DE ACCESO EN FACHADA"], ["07", "PUERTA BLINDADA DE ACCESO EN FACHADA"], ["07", "SUMINISTRO E INSTALACIÓN TOLDOS"], ["07", "CIERRE METÁLICO 170X28"], ["08", "COLOCACIÓN DE PUERTA ABATIBLE UNA HOJA"], ["08", "SUMINISTRO PUERTA DE PASO ABATIBLE EN MADERA PREMIUM"], ["08", "SUMINISTRO PUERTA DE PASO ABATIBLE EN MADERA STANDARD"], ["08", "COLOCACIÓN DE PUERTA DOBLE ABATIBLE UNA HOJA"], ["08", "SUMINISTRO PUERTA DE PASO DOBLE ABATIBLE EN MADERA PREMIUM"], ["08", "SUMINISTRO PUERTA DE PASO DOBLE ABATIBLE EN MADERA STANDARD"], ["08", "COLOCACIÓN DE PUERTA CORREDERA SISTEMA CASSETTE"], ["08", "SUMINISTRO PUERTA DE PASO CORREDERA MADERA"], ["08", "ARMAZÓN METÁLICO PARA PUERTA CORREDERA DE MADERA"], ["08", "REUTILIZACIÓN DE PUERTA EXISTENTE"], ["08", "SUMINISTRO Y COLOCACIÓN DE PUERTA ENRASADA CON BISAGRAS OCULTAS"], ["08", "SUMINISTRO DE PUERTA DE PASO EN VIDRIO"], ["08", "COLOCACIÓN DE PUERTA DE PASO EN VIDRIO"], ["08", "SUPLEMENTO POR COLOCACIÓN DE CONDENA EN PUERTA DE PASO"], ["08", "PUERTA DE PASO EN VIDRIO ACÚSTICA"], ["08", "SUMINISTRO Y COLOCACIÓN DE MAMPARAS DE VIDRIO"], ["08", "MAMPARAS DE VIDRIO ACÚSTICA CON PERFILERÍA DE PVC/ALUMINIO"], ["08", "SUMINISTRO DE PUERTA METÁLICA PRELACADA"], ["08", "SUMINISTRO DE PUERTA SECTORIZACIÓN ANTIPÁNICO PRELACADA RF60"], ["08", "SUMINISTRO DE PUERTA SECTORIZACIÓN PRELACADA RF60"], ["08", "COLOCACIÓN DE PUERTA METÁLICA"], ["08", "SUMINISTRO DE CERRADURA CON CÓDIGO DE SEGURIDAD"], ["08", "INSTALACIÓN CERRADURA CON CÓDIGO DE SEGURIDAD"], ["09", "COLOCACIÓN PALILLERIA DECORATIVA EN PARED"], ["09", "SUMINISTRO PALILLERÍA DECORATIVA EN PARED"], ["09", "CHAPADO DE PARED EN VINÍLICO SPC"], ["09", "CHAPADO DE MADERA"], ["09", "CHAPADO DE METACRILATO ESPEJADO"], ["09", "CHAPADO DE MELAMINA EFECTO PIEDRA"], ["09", "SUMINISTRO E INSTALACIÓN DE PAPEL PINTADO"], ["09", "SUMINISTRO Y COLOCACIÓN SEPARADOR DE AMBIENTES"], ["09", "COLOCACIÓN REVESTIMIENTOS"], ["09", "SUMINISTRO E INSTALACIÓN DE ENTELADO DE PAREDES"], ["09", "MOLDURAS DECORATIVAS"], ["09", "ENCIMERAS PARA ZONA DE BARRA ACERO INOX. EN FORMA DE L MEDIDA 610X195"], ["09", "CONTRABARRA DE ACERO INOXIDABLE 600X65"], ["10", "ALISADO DE PARED CON GOTELÉ"], ["10", "TENDIDO DE AGUAPLAST EN TABIQUES NUEVOS LISOS"], ["10", "TENDIDO DE AGUAPLAST EN TABIQUES EXISTENTES"], ["10", "ALISADO DE TECHO CON GOTELÉ"], ["10", "ALISADO DE PARED Y TECHO MEDIANTE PICOTEADO Y REPARACIÓN"], ["10", "PINTURA PLÁSTICA EN PAREDES - COLORES CLAROS"], ["10", "PINTURA PLÁSTICA EN TECHOS - COLORES CLAROS"], ["10", "PINTURA PLÁSTICA EN PAREDES - COLORES OSCUROS"], ["10", "PINTURA PLÁSTICA EN TECHOS - COLORES OSCUROS"], ["10", "PINTURA EPOXI EN PAREDES"], ["10", "PINTURA TEXTURIZADA"], ["10", "PINTURA EN FACHADA"], ["10", "PINTURA CARPINTERÍA METÁLICA EXTERIOR"], ["11", "SEÑALÉTICA ANTI INCENDIOS"], ["11", "RÓTULO LUMINOSO BANDEJA CALADA"], ["11", "RÓTULO CORPÓREO"], ["11", "VINILO DE CORTE PARED/CRISTAL"], ["11", "SEÑALÉTICA PUERTAS CORPÓREO"], ["11", "TRANSPORTE E INSTALACIÓN DE CARTELERÍA"], ["12", "INODORO PARA PERSONAS CON MOVILIDAD REDUCIDA"], ["12", "INODORO PARA ASEOS"], ["12", "LAVABO PARA ASEOS"], ["12", "GRIFERÍA LAVABO PARA ASEOS"], ["12", "BARRAS ABATIBLES PARA ASEO ADAPTADO"], ["12", "SUMINISTRO DE MÁMPARA"], ["12", "INSTALACIÓN DE MÁMPARA"], ["12", "SUMINISTRO PLATO DUCHA"], ["12", "INSTALACIÓN DE PLATO DUCHA"], ["12", "SUMINISTRO E INSTALACIÓN ESPEJO"], ["12", "SUMINISTRO Y COLOCACIÓN MUEBLE LAVABO EN KIT"], ["13", "INSTALACIÓN DE LUMINARIAS"], ["13", "INSTALACIÓN DE LUMINARIAS LED"], ["13", "SUMINISTRO DE TIRA LED"], ["13", "LUMINARIA DE CUELGUE"], ["13", "LUMINARIA DOWNLIGHT"], ["13", "GENERAL - ILUMINACIÓN DE EMERGENCIA"], ["14", "BANCOS CORRIDOS TAPIZADOS"], ["14", "SILLA SALVAESCALERAS"], ["14", "COCINA SEGÚN DISEÑO"], ["14", "HORNO"], ["14", "FRIGORÍFICO"], ["14", "MICROONDAS"], ["14", "VITROCERÁMICA"], ["14", "CAMPANA INTEGRADA"], ["14", "LAVAVAJILLAS"], ["14", "GRIFO COCINA"], ["14", "FREGADERO"], ["14", "CABINA ACÚSTICA ESTÁNDAR"], ["14", "CABINA ACÚSTICA PREMIUM"], ["14", "SILLA OPERATIVA"], ["15", "SUMINISTRO E INSTALACIÓN DE CENTRAL CONVENCIONAL"], ["15", "BATERÍA DE EMERGENCIA 12V 7Ah."], ["15", "DETECTOR DE HUMO ÓPTICO."], ["15", "PULSADOR DE ALARMA CONVENCIONAL"], ["15", "SIRENA ÓPTICO ACÚSTICA CONVENCIONAL"], ["15", "INTERCONEXIÓN DE CENTRAL LOCAL - CENTRO COMERCIAL"], ["15", "REUBICACIÓN CENTRAL DE ALARMA DE INCENDIOS"], ["15", "SUMINISTRO E INSTALACIÓN DE ROCIADOR AUTOMÁTICO"], ["15", "MODIFICACION RED DE ROCIADORES"], ["15", "MODIFICACIÓN RED DE DETENCCIÓN"], ["15", "FIJACIÓN DE ROCIADORES"], ["15", "VACIADO Y LLENADO DE RED DE ROCIADORES"], ["15", "EXTINTOR HIDRICO ECOLÓGICO"], ["15", "EXTINTOR ANHIDRICO CARBONICO DE 5KG"], ["15", "SEÑALETICA INDICATIVA DE EVACUACIÓN."], ["15", "MEDIOS DE ELEVACIÓN."], ["15", "CERTIFICADO COMO EMPRESA INSTALADORA RED PCI."], ["15", "LEGALIZACIÓN DE LA INSTALACIÓN DE PCI"], ["15", "COMPROBACIÓN DE SISTEMA DE DETECCIÓN DE INCENDIOS"], ["16", "HORMIGÓN RELLENO POZOS CIMENT. HM-20/B/40/XC2 o XC3 VERT. GRÚA"], ["16", "HORMIGÓN ARMADO CIMENT. ZAPATAS HA-25/B/40/XC2 o XC3 VERT. GRÚA"], ["16", "HORMIGÓN ARMADO CIMENT. VIGAS/ZAPATAS HA-25/P/40/XC2 o XC3 VERT. GRÚA"], ["16", "HORMIGÓN ARMADO CIMENT. VIGAS/ZAPATAS HA-25/B/20/XC2 o XC3 VERT. GRÚA"], ["16", "LOSA CIMENTACIÓN HORM. ARM. HA-25/B/20/XC2 o XC3 - 85 kg/m3 VERT. GRÚA"], ["16", "HORMIGÓN ARM. MURO 2 CARAS e=25 cm h<3 m HA-25/B/20/XC2 o XC3 VERT. GRÚA"], ["16", "SOLERA HORMIGÓN EN MASA HM-20/B/40/XC2 o XC3 VERT. GRÚA e=10 cm"], ["16", "SOLERA HORM. HA-25/B/20/XC2 o XC3 #150x150x6 mm e=15 cm C/ENCAH. NAT. 40/80 15 cm GRÚA"], ["16", "HORM. ARM. HA-25/B/20/X0 o XC1 PILAR CUAD. / RECT. h=3"], ["16", "HORM. ARM. HA-25/B/20/X0 o XC1 VIGA PLANA 150 kg/m3 VERT. GRÚA"], ["16", "FORJADO UNIDIR. DOBLE VIG. AUTORRES. 25+5 cm B-80 cm BOV. CERÁMICA HA-25/B/20/XC2 o XC3"], ["16", "FORJADO UNIDIR. VIG. SEMIRRES. 25+5 cm B-70 BOV. CERÁMICA HA-25/B/20/XC2 o XC3"], ["16", "CARGADERO HORMIGÓN D/T 19 cm"], ["16", "LOSA INCLINADA HORM. ARM. HA-25/B/20/X0 o XC1 - 80 kg/m3 e=20 cm VERT. GRÚA"], ["16", "ACERO S275JR EN ESTRUCTURA SOLDADA"], ["16", "PLACA ANCLAJE 200x200x20 mm"], ["16", "LOSA PLANA HORM. ARM. HA-25/B/20/X0 o XC1 - 80 kg/m3 e=20 cm VERT. MANUAL"], ["16", "FÁBRICA LADRILLO PERFORADO 10 cm 1P FACHADA MORTERO M-5"], ["16", "FÁBRICA LADRILLO PERFORADO 7 cm 1/2P FACHADA MORTERO M-5"], ["16", "DESBROCE Y LIMPIEZA DE TERRENO A MÁQUINA"], ["16", "EXCAVACIÓN DE POZOS POR MEDIOS MECÁNICOS"], ["16", "EXCAVACIÓN DE ZANJA POR MEDIOS MECÁNICOS"], ["16", "EXCAVACIÓN DE ZANJA PARA SANEAMIENTO POR MEDIOS MECÁNICOS"], ["16", "EXCAVACIÓN ARQ./POZO SANEAMIENTO POR MEDIOS MECÁNICOS"]];
+/* ===== Motor de dibujo ===== */
+const W=900,H=400,PW=180,OR='#F26A1B',INK='#10213F',ST='#3A4660';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function wrap(s,n){const w=String(s).split(' '),L=[];let c='';for(const x of w){if(c&&(c+' '+x).length>n){L.push(c);c=x}else c=c?c+' '+x:x}if(c)L.push(c);return L}
+const DEFS=`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<pattern id="p-conc" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#BDBDB6"/><circle cx="3" cy="4" r="1.2" fill="#8E8E87"/><circle cx="10" cy="9" r="1.5" fill="#8E8E87"/><circle cx="6" cy="12" r="1" fill="#9A9A93"/></pattern>
+<pattern id="p-grav" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#A9A9A4"/><circle cx="4" cy="4" r="3" fill="#8A8A85"/><circle cx="12" cy="10" r="3.4" fill="#C9C9C4"/><circle cx="4" cy="13" r="2.4" fill="#7F7F7A"/></pattern>
+<pattern id="p-wool" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#F2D275"/><path d="M0 5q4-6 8 0t8 0M0 13q4-6 8 0t8 0" stroke="#C99F2E" stroke-width="1.4" fill="none"/></pattern>
+<pattern id="p-brick" width="40" height="20" patternUnits="userSpaceOnUse"><rect width="40" height="20" fill="#C4623A"/><rect width="40" height="2.4" fill="#E9E3D5"/><rect y="10" width="40" height="2.4" fill="#E9E3D5"/><rect width="2.4" height="10" fill="#E9E3D5"/><rect x="20" y="10" width="2.4" height="10" fill="#E9E3D5"/></pattern>
+<pattern id="p-block" width="40" height="20" patternUnits="userSpaceOnUse"><rect width="40" height="20" fill="#A8AAA6"/><rect width="40" height="2.4" fill="#DAD8D0"/><rect y="10" width="40" height="2.4" fill="#DAD8D0"/><rect width="2.4" height="10" fill="#DAD8D0"/><rect x="20" y="10" width="2.4" height="10" fill="#DAD8D0"/></pattern>
+<pattern id="p-demo" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="#D32F2F" stroke-width="3" opacity=".75"/></pattern>
+<pattern id="p-earth" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="#8B6B4A"/><circle cx="5" cy="5" r="1.6" fill="#6E5336"/><circle cx="13" cy="12" r="2" fill="#A68764"/></pattern>
+<marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--ar)"/></marker>
+</defs></svg>`;
+const fillOf=l=>l.p?`url(#p-${l.p})`:(l.c||'#DDD');
+
+/* ---- callouts ---- */
+function layoutSide(items){
+  items.sort((a,b)=>a.ay-b.ay);let prev=6;
+  for(const it of items){it.y=Math.max(it.ay-it.h/2,prev);prev=it.y+it.h+8}
+  let lim=H-6;for(let i=items.length-1;i>=0;i--){const it=items[i];if(it.y+it.h>lim)it.y=lim-it.h;lim=it.y-8}
+  if(items.length&&items[0].y<4){let p=4;for(const it of items){it.y=Math.max(it.y,p);p=it.y+it.h+8}}
+}
+function callouts(cs){
+  const L=[],R=[];
+  cs.forEach(c=>{c.lines=wrap(c.label,22);c.h=Math.max(38,c.lines.length*16+14);(c.side?c.side==='L':c.ax<W/2)?L.push(c):R.push(c)});
+  layoutSide(L);layoutSide(R);
+  let lines='',pills='',dots='';
+  for(const c of [...L,...R]){
+    const left=L.includes(c),x=left?10:W-10-PW,cy=c.y+c.h/2,bx=left?x+PW-19:x+19;
+    lines+=`<line x1="${bx}" y1="${cy}" x2="${c.ax}" y2="${c.ay}" stroke="${OR}" stroke-width="2.2" stroke-linecap="round"/>`;
+    dots+=`<circle cx="${c.ax}" cy="${c.ay}" r="4.6" fill="${OR}" stroke="#fff" stroke-width="1.6"/>`;
+    const tx=left?x+11:x+38;
+    pills+=`<rect x="${x}" y="${c.y}" width="${PW}" height="${c.h}" rx="7" fill="var(--pill)" stroke="#C7D0DF" stroke-width="1"/>`+
+      `<circle cx="${bx}" cy="${cy}" r="12.5" fill="${OR}"/><text x="${bx}" y="${cy+5}" text-anchor="middle" fill="#fff" class="cb">${c.n}</text>`+
+      `<text class="cl" fill="var(--pill-ink)">${c.lines.map((t,i)=>`<tspan x="${tx}" y="${c.y+19+i*16}">${esc(t)}</tspan>`).join('')}</text>`;
+  }
+  return lines+dots+pills;
+}
+const svgWrap=(inner,extra='')=>`<svg viewBox="0 0 ${W} ${H}" role="img" xmlns="http://www.w3.org/2000/svg">${inner}${extra}</svg>`;
+const label=(x,y,t,a='middle',cls='cl2')=>`<text x="${x}" y="${y}" text-anchor="${a}" class="${cls}" fill="${INK}">${esc(t)}</text>`;
+
+/* ---- capas horizontales (top -> bottom). item: [titulo,espesor,altura relativa,color|patron,demo,etiqueta] ---- */
+const COL={conc:'p:conc',grav:'p:grav',wool:'p:wool',earth:'p:earth',brick:'p:brick',block:'p:block'};
+function pickFill(f){if(f.startsWith('p:'))return{p:f.slice(2)};if(['conc','grav','wool','earth','brick','block'].includes(f))return{p:f};return{c:f}}
+function dLayersH(d){
+  const X=290,Wd=320,Y0=36,Ht=330,items=d.layers.map(a=>({lab:a[0],e:a[1],h:a[2]||1,f:pickFill(a[3]||'#DDD'),demo:a[4],t:a[5]||a[0]}));
+  const sum=items.reduce((s,i)=>s+i.h,0);items.forEach(i=>i.hh=Math.max(34,i.h/sum*Ht));
+  const tot=items.reduce((s,i)=>s+i.hh,0);let y=Y0+Math.max(0,(Ht-tot)/2),g='',cs=[];
+  items.forEach((it,i)=>{
+    g+=`<rect x="${X}" y="${y}" width="${Wd}" height="${it.hh}" fill="${fillOf(it.f)}" stroke="${ST}" stroke-width="1.6"/>`;
+    if(it.demo)g+=`<rect x="${X}" y="${y}" width="${Wd}" height="${it.hh}" fill="url(#p-demo)" stroke="#D32F2F" stroke-width="2.4" stroke-dasharray="7 4"/>`;
+    if(it.e)g+=`<text x="${X+Wd/2}" y="${y+it.hh/2+5}" text-anchor="middle" class="cl" fill="#10213F" stroke="#fff" stroke-width="3.2" paint-order="stroke">${esc(it.e)}</text>`;
+    const right=i%2===0;cs.push({n:i+1,label:it.t,ax:right?X+Wd-16:X+16,ay:y+it.hh/2,side:right?'R':'L'});y+=it.hh;
+  });
+  if(d.perim)g+=`<rect x="${X-9}" y="${Y0}" width="9" height="${tot}" fill="#F2D275" stroke="${ST}" stroke-width="1"/>`;
+  return svgWrap(g,callouts(cs));
+}
+/* ---- capas verticales (de izquierda a derecha) ---- */
+function dLayersV(d){
+  const items=d.layers.map(a=>({lab:a[0],e:a[1],w:a[2]||1,f:pickFill(a[3]||'#DDD'),demo:a[4],t:a[5]||a[0]}));
+  const sum=items.reduce((s,i)=>s+i.w,0),X0=110,TW=680;items.forEach(i=>i.ww=Math.max(96,i.w/sum*TW));
+  const tot=items.reduce((s,i)=>s+i.ww,0),sc=tot>TW?TW/tot:1;let x=X0+(TW-tot*sc)/2,g='',cs=[];
+  const Y0=96,Y1=304;
+  items.forEach((it,i)=>{
+    const w=it.ww*sc;
+    g+=`<rect x="${x}" y="${Y0}" width="${w}" height="${Y1-Y0}" fill="${fillOf(it.f)}" stroke="${ST}" stroke-width="1.6"/>`;
+    if(it.demo)g+=`<rect x="${x}" y="${Y0}" width="${w}" height="${Y1-Y0}" fill="url(#p-demo)" stroke="#D32F2F" stroke-width="2.4" stroke-dasharray="7 4"/>`;
+    if(it.e)g+=`<text x="${x+w/2}" y="${(Y0+Y1)/2+5}" text-anchor="middle" class="cl" fill="#10213F" stroke="#fff" stroke-width="3.2" paint-order="stroke">${esc(it.e)}</text>`;
+    cs.push({n:i+1,cx:x+w/2,label:it.t,top:i%2===0});x+=w;
+  });
+  // pastillas arriba / abajo
+  let out='',lines='',pills='';
+  for(const c of cs){
+    c.lines=wrap(c.label,22);const h=Math.max(38,c.lines.length*16+14);
+    const px=Math.min(W-PW-8,Math.max(8,c.cx-PW/2)),py=c.top?8:H-8-h,bx=px+19,cy=py+h/2;
+    const ay=c.top?Y0+46:Y1-46;
+    lines+=`<line x1="${c.cx}" y1="${c.top?py+h:py}" x2="${c.cx}" y2="${ay}" stroke="${OR}" stroke-width="2.2"/>`+
+           `<circle cx="${c.cx}" cy="${ay}" r="4.6" fill="${OR}" stroke="#fff" stroke-width="1.6"/>`;
+    pills+=`<rect x="${px}" y="${py}" width="${PW}" height="${h}" rx="7" fill="var(--pill)" stroke="#C7D0DF"/>`+
+      `<circle cx="${bx}" cy="${cy}" r="12.5" fill="${OR}"/><text x="${bx}" y="${cy+5}" text-anchor="middle" fill="#fff" class="cb">${c.n}</text>`+
+      `<text class="cl" fill="var(--pill-ink)">${c.lines.map((t,i)=>`<tspan x="${px+38}" y="${py+19+i*16}">${esc(t)}</tspan>`).join('')}</text>`;
+  }
+  return svgWrap(g,lines+pills);
+}
+/* ---- tabique con montantes (alzado) ---- */
+function dStud(d){
+  const yT=44,yB=348;let s='';
+  const conc=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#p-conc)" stroke="${ST}" stroke-width="1.4"/>`;
+  s+=conc(206,26,488,18)+conc(206,348,488,18)+conc(206,44,24,304)+conc(670,44,24,304);
+  const steel='#AEBACB',sl='#5E6B82';
+  let xs=[250,306,362,418,474,530,586,642];
+  if(d.door)xs=[250,306,362,418,642];
+  // lana
+  if(d.wool!==false)for(let i=0;i<3;i++)s+=`<rect x="${xs[i]+5}" y="54" width="${xs[i+1]-xs[i]-10}" height="284" fill="url(#p-wool)"/>`;
+  // montantes
+  xs.forEach(x=>{s+=`<rect x="${x-5}" y="54" width="10" height="284" fill="${steel}" stroke="${sl}" stroke-width="1.2"/>`});
+  s+=`<rect x="230" y="44" width="440" height="10" fill="#8FA0B6" stroke="${sl}"/><rect x="230" y="338" width="440" height="10" fill="#8FA0B6" stroke="${sl}"/>`;
+  if(d.banda)s+=`<rect x="230" y="334" width="440" height="4" fill="#2F3B52"/>`;
+  // placa
+  const pl=d.open?'':(d.door?`<path d="M418 54H670V338H418ZM492 134V338H570V134Z" fill="#E7E9EC" stroke="#8E95A3" stroke-width="1.5" fill-rule="evenodd"/>`:`<rect x="418" y="54" width="252" height="284" fill="#E7E9EC" stroke="#8E95A3" stroke-width="1.5"/>`);
+  s+=pl;
+  if(d.door){
+    s+=`<rect x="478" y="54" width="10" height="84" fill="${steel}" stroke="${sl}"/><rect x="530" y="54" width="10" height="80" fill="${steel}" stroke="${sl}" transform="translate(-5 0)"/><rect x="574" y="54" width="10" height="84" fill="${steel}" stroke="${sl}"/>`;
+    s+=`<rect x="478" y="134" width="106" height="10" fill="#8FA0B6" stroke="${sl}"/>`;
+    s+=`<rect x="478" y="144" width="10" height="194" fill="#8FA0B6" stroke="${sl}"/><rect x="574" y="144" width="10" height="194" fill="#8FA0B6" stroke="${sl}"/>`;
+    s+=`<rect x="492" y="146" width="78" height="192" fill="var(--draw)" stroke="#B98A5A" stroke-width="3" stroke-dasharray="6 3"/>`;
+  }
+  if(!d.open){
+    const sx=d.door?[418,642]:[418,474,530,586,642];
+    sx.forEach(x=>{for(let y=64;y<=328;y+=25)s+=`<circle cx="${x}" cy="${y}" r="2.1" fill="#4A5568"/>`});
+    s+=`<line x1="${d.door?618:544}" y1="54" x2="${d.door?618:544}" y2="338" stroke="#8E95A3" stroke-width="1.4"/>`;
+    if(d.doble)s+=`<line x1="${d.door?460:600}" y1="54" x2="${d.door?460:600}" y2="338" stroke="${OR}" stroke-width="1.6" stroke-dasharray="6 4"/>`;
+    if(d.demo)s+=`<rect x="418" y="54" width="252" height="284" fill="url(#p-demo)" stroke="#D32F2F" stroke-width="2.4" stroke-dasharray="7 4"/>`;
+  }
+  s+=`<line x1="254" y1="104" x2="302" y2="104" stroke="${OR}" stroke-width="2" marker-end="url(#arr)" marker-start="url(#arr)"/>`;
+  const A={canalSup:[330,49],canalInf:[330,343],montante:[306,210],dim:[278,104],lana:[334,250],
+    placa:d.door?[450,230]:[610,250],tornillo:[d.door?418:474,139],junta:[d.door?618:544,200],
+    jamba:[481,300],dintel:[530,139],cerco:[530,300],banda:[330,336],doble:[d.door?460:600,300],estructura:[218,200]};
+  const cs=d.parts.map((p,i)=>{const a=A[p[0]];return{n:i+1,label:p[1],ax:a[0],ay:a[1],side:p[2]}});
+  return svgWrap(s,callouts(cs));
+}
+/* ---- fábrica de ladrillo / bloque (alzado) ---- */
+function dBrick(d){
+  let s='';const conc=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#p-conc)" stroke="${ST}" stroke-width="1.4"/>`;
+  s+=conc(206,26,488,20)+conc(206,348,488,18)+conc(206,46,26,302)+conc(668,46,26,302);
+  const pat=d.bloque?'block':'brick';
+  s+=`<rect x="232" y="62" width="436" height="276" fill="url(#p-${pat})" stroke="${ST}" stroke-width="1.4"/>`;
+  s+=`<rect x="232" y="46" width="436" height="16" fill="url(#p-wool)" stroke="${ST}" stroke-width="1"/>`;
+  if(d.door){
+    s+=`<rect x="430" y="172" width="100" height="166" fill="var(--draw)" stroke="${ST}" stroke-width="1.4"/>`;
+    s+=`<rect x="414" y="150" width="132" height="22" fill="#9AA7B8" stroke="${ST}" stroke-width="1.4"/>`;
+  }
+  if(d.demo)s+=`<rect x="232" y="62" width="436" height="276" fill="url(#p-demo)" stroke="#D32F2F" stroke-width="2.4" stroke-dasharray="7 4"/>`;
+  const A={pilar:[219,200],forjado:[450,36],juntaSup:[600,54],mortero:[320,222],hilada:[600,130],cargadero:[480,161],hueco:[480,260],replanteo:[300,343],anclaje:[232,262],pegado:[560,302]};
+  const cs=d.parts.map((p,i)=>{const a=A[p[0]];return{n:i+1,label:p[1],ax:a[0],ay:a[1],side:p[2]}});
+  return svgWrap(s,callouts(cs));
+}
+/* ---- huecos: ventana, puerta, corredera, vidrio ---- */
+function dOpening(d){
+  let s='';const conc=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#p-conc)" stroke="${ST}" stroke-width="1.4"/>`;
+  s+=conc(206,26,488,18)+conc(206,356,488,18);
+  s+=`<rect x="226" y="44" width="448" height="312" fill="#DAD6CC" stroke="${ST}" stroke-width="1.4"/>`;
+  const wood='#B98A5A',al='#AEB8C6';let A={};
+  if(d.kind==='window'){
+    s+=conc(340,92,220,18);
+    if(d.toldo)s+=`<path d="M330 60H570L585 92H315Z" fill="${OR}" stroke="${ST}"/><path d="M360 60L350 92M400 60L395 92M440 60L440 92M480 60L485 92M520 60L530 92" stroke="#fff" stroke-width="5"/>`;
+    s+=`<rect x="352" y="112" width="196" height="160" fill="${al}" stroke="${ST}" stroke-width="2"/>`;
+    s+=`<rect x="366" y="126" width="168" height="132" fill="#BCD9EE" stroke="${ST}" stroke-width="1.5"/><path d="M380 250L430 134M410 250L460 134" stroke="#fff" stroke-width="6" opacity=".55"/>`;
+    s+=`<rect x="448" y="124" width="4" height="136" fill="${al}" stroke="${ST}"/>`;
+    s+=`<rect x="334" y="272" width="232" height="12" fill="#7F8AA0" stroke="${ST}" stroke-width="1.4"/>`;
+    s+=`<rect x="349" y="109" width="202" height="166" fill="none" stroke="#2F3B52" stroke-width="3" stroke-dasharray="5 3"/>`;
+    if(d.reja){for(let x=366;x<=534;x+=24)s+=`<line x1="${x}" y1="114" x2="${x}" y2="270" stroke="#2F3B52" stroke-width="4"/>`;s+=`<line x1="356" y1="150" x2="544" y2="150" stroke="#2F3B52" stroke-width="4"/><line x1="356" y1="230" x2="544" y2="230" stroke="#2F3B52" stroke-width="4"/>`}
+    A={dintel:[450,101],premarco:[349,190],marco:[352,200],vidrio:[410,190],hoja:[450,190],vierteaguas:[450,278],sellado:[551,130],reja:[500,150],toldo:[450,76],pelo:[534,190]};
+  }else if(d.kind==='door'||d.kind==='doorMetal'){
+    const col=d.kind==='doorMetal'?'#8D9BAE':wood;
+    s+=`<rect x="384" y="106" width="132" height="250" fill="none" stroke="#2F3B52" stroke-width="3" stroke-dasharray="5 3"/>`;
+    s+=`<rect x="392" y="114" width="116" height="236" fill="${col}" stroke="${ST}" stroke-width="2"/>`;
+    s+=`<rect x="404" y="130" width="92" height="90" fill="none" stroke="${ST}" stroke-opacity=".5"/><rect x="404" y="236" width="92" height="98" fill="none" stroke="${ST}" stroke-opacity=".5"/>`;
+    s+=`<rect x="378" y="100" width="144" height="12" fill="#E8E8E3" stroke="${ST}"/><rect x="378" y="100" width="12" height="256" fill="#E8E8E3" stroke="${ST}"/><rect x="510" y="100" width="12" height="256" fill="#E8E8E3" stroke="${ST}"/>`;
+    [138,230,322].forEach(y=>{s+=`<rect x="390" y="${y}" width="6" height="22" fill="#5A6475" stroke="#222"/>`});
+    s+=`<rect x="484" y="232" width="22" height="7" rx="3" fill="#C9CED8" stroke="#222"/>`;
+    s+=`<rect x="392" y="350" width="116" height="6" fill="#fff" opacity=".0"/><rect x="226" y="338" width="152" height="18" fill="#EFEFE9" stroke="${ST}"/><rect x="522" y="338" width="152" height="18" fill="#EFEFE9" stroke="${ST}"/>`;
+    A={precerco:[384,200],cerco:[516,150],tapajuntas:[378,260],bisagras:[393,149],hoja:[450,170],manilla:[495,236],holgura:[450,353],dintel:[450,104],cerradura:[500,225],rodapie:[300,347]};
+  }else if(d.kind==='cassette'){
+    s+=`<rect x="226" y="44" width="448" height="62" fill="#E7E9EC" stroke="#8E95A3"/>`;
+    s+=`<rect x="486" y="106" width="188" height="250" fill="#CBD0D9" stroke="${ST}" stroke-dasharray="7 4" stroke-width="1.6"/>`;
+    s+=`<rect x="486" y="106" width="188" height="250" fill="url(#p-wool)" opacity=".18"/>`;
+    s+=`<rect x="396" y="112" width="190" height="238" fill="${wood}" stroke="${ST}" stroke-width="2"/>`;
+    s+=`<rect x="380" y="100" width="300" height="9" fill="#7F8AA0" stroke="${ST}"/>`;
+    s+=`<rect x="396" y="112" width="10" height="238" fill="#5B6475" opacity=".35"/>`;
+    s+=`<rect x="410" y="214" width="14" height="40" rx="5" fill="#C9CED8" stroke="#222"/>`;
+    s+=`<rect x="380" y="106" width="16" height="250" fill="#8FA0B6" stroke="${ST}"/>`;
+    A={guia:[540,104],cassette:[600,240],hoja:[460,170],jamba:[388,230],cierre:[640,70],tirador:[417,234],dintel:[300,76],suelo:[540,352]};
+  }else if(d.kind==='glass'){
+    s+=`<rect x="372" y="104" width="156" height="252" fill="#BCD9EE" stroke="${ST}" stroke-width="2"/><path d="M392 340L470 120M424 340L500 120" stroke="#fff" stroke-width="9" opacity=".5"/>`;
+    s+=`<rect x="372" y="104" width="156" height="8" fill="#2F3B52"/><rect x="372" y="348" width="156" height="8" fill="#2F3B52"/><rect x="372" y="104" width="8" height="252" fill="#2F3B52"/>`;
+    s+=`<rect x="505" y="190" width="9" height="90" rx="4" fill="#C9CED8" stroke="#222"/>`;
+    s+=`<circle cx="376" cy="108" r="6" fill="#C9CED8" stroke="#222"/><circle cx="376" cy="352" r="6" fill="#C9CED8" stroke="#222"/>`;
+    A={vidrio:[450,210],perfil:[450,108],bisagras:[376,108],tirador:[509,236],suelo:[450,352],cerradura:[509,270],hoja:[420,160],sello:[528,300]};
+  }
+  const cs=d.parts.map((p,i)=>{const a=A[p[0]];return{n:i+1,label:p[1],ax:a[0],ay:a[1],side:p[2]}});
+  return svgWrap(s,callouts(cs));
+}
+/* ---- diagrama de proceso ---- */
+function dFlow(d){
+  const N=d.nodes,k=N.length,per=k<=4?k:(k<=6?3:4),rows=Math.ceil(k/per);
+  const bw=Math.min(184,(W-40)/per-30),bh=rows>1?112:128,cw=(W-40)/per,rh=(H-30)/rows;
+  const pos=N.map((n,i)=>{const r=Math.floor(i/per),c=i%per;return{x:20+cw*(c+.5),y:15+rh*(r+.5)}});
+  let g='';
+  for(let i=0;i<k-1;i++){
+    const a=pos[i],b=pos[i+1];
+    if(a.y===b.y)g+=`<line x1="${a.x+bw/2+2}" y1="${a.y}" x2="${b.x-bw/2-8}" y2="${b.y}" stroke="var(--ar)" stroke-width="2.4" marker-end="url(#arr)"/>`;
+    else g+=`<path d="M${a.x} ${a.y+bh/2+2}V${(a.y+b.y)/2}H${b.x}V${b.y-bh/2-8}" fill="none" stroke="var(--ar)" stroke-width="2.4" marker-end="url(#arr)"/>`;
+  }
+  N.forEach((n,i)=>{
+    const p=pos[i],t=wrap(n[0],bw>150?17:14),sub=wrap(n[1]||'',bw>150?24:19).slice(0,5);
+    g+=`<rect x="${p.x-bw/2}" y="${p.y-bh/2}" width="${bw}" height="${bh}" rx="9" fill="var(--pill)" stroke="${n[2]?'#D32F2F':'#C7D0DF'}" stroke-width="${n[2]?2.6:1.4}"/>`;
+    g+=`<text fill="var(--pill-ink)" font-family="'Barlow Condensed','Arial Narrow',Arial" font-weight="800" font-size="19">${t.map((x,j)=>`<tspan x="${p.x-bw/2+16}" y="${p.y-bh/2+34+j*19}">${esc(x.toUpperCase())}</tspan>`).join('')}</text>`;
+    const y0=p.y-bh/2+34+t.length*19+6;
+    g+=`<text fill="#4A5A75" class="cl2">${sub.map((x,j)=>`<tspan x="${p.x-bw/2+16}" y="${y0+j*15}">${esc(x)}</tspan>`).join('')}</text>`;
+    g+=`<circle cx="${p.x-bw/2}" cy="${p.y-bh/2}" r="14" fill="${OR}" stroke="#fff" stroke-width="2"/><text x="${p.x-bw/2}" y="${p.y-bh/2+6}" text-anchor="middle" fill="#fff" class="cb" style="font-size:17px">${i+1}</text>`;
+  });
+  return svgWrap(g);
+}
+const DRAW={layersH:dLayersH,layersV:dLayersV,stud:dStud,brick:dBrick,opening:dOpening,flow:dFlow};
+
+/* ===== Interfaz ===== */
+const CAPS={'00':'Honorarios de obra','01':'Demoliciones','02':'Albañilería','03':'Solados y alicatados','04':'Fontanería','05':'Climatización y gas','06':'Electricidad','07':'Carpintería exterior','08':'Carpintería interior','09':'Chapados','10':'Pintura','11':'Cartelería','12':'Sanitarios y grifería','13':'Iluminación','14':'Mobiliario de obra','15':'Protección contra incendios','16':'Cimentación y estructura'};
+const MK={no:`<svg class="mk" viewBox="0 0 30 30" aria-label="No"><path d="M5 5L25 25M25 5L5 25" stroke="#D32F2F" stroke-width="6" stroke-linecap="round"/></svg>`,
+ si:`<svg class="mk" viewBox="0 0 30 30" aria-label="Sí"><path d="M4 16L12 24L27 6" fill="none" stroke="#1B8F50" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`};
+function match(f){
+  const keys=f.m||[];return BUDGET.filter(b=>(f.caps||[f.cap]).includes(b[0])&&keys.some(k=>b[1].toUpperCase().includes(k)));
+}
+function fichaHTML(f,i){
+  const ps=match(f);
+  const pc=ps.map(b=>`<span><b>${b[0]}</b>${esc(b[1].toLowerCase().replace(/^./,c=>c.toUpperCase()))}</span>`).join('');
+  return `<article class="ficha" id="f${i+1}" data-cap="${f.cap}" data-q="${esc((f.t+' '+f.s+' '+ps.map(p=>p[1]).join(' ')+' '+f.steps.map(x=>x[0]).join(' ')).toLowerCase())}">
+  <div class="fh"><div class="meta"><span>Ficha ${String(i+1).padStart(2,'0')}</span><span class="cap">${f.cap} · ${CAPS[f.cap]}</span></div>
+  <h3>${esc(f.t)}</h3><p>${esc(f.s)}</p></div>
+  <div class="bar"><i>1</i>Cómo se ve</div>
+  <div class="draw">${DRAW[f.d.k](f.d)}</div>
+  <div class="bar"><i>2</i>Paso a paso</div>
+  <div class="steps">${f.steps.map((s,j)=>`<div class="step"><span class="dot">${j+1}</span><b>${esc(s[0])}</b><p>${esc(s[1])}</p></div>`).join('')}</div>
+  <div class="bar"><i>3</i>Lo que no y cómo va</div>
+  <div class="cols"><div class="colh no">✕ Lo que no</div><div class="colh si">✓ Cómo va</div></div>
+  <div class="pairs">${f.no.map((n,j)=>`<div class="cell no">${MK.no}<p>${esc(n)}</p></div><div class="cell si">${MK.si}<p>${esc(f.si[j])}</p></div>`).join('')}</div>
+  <div class="foot"><div><h4>Foto antes de tapar</h4><p>${esc(f.foto)}</p></div>
+  <div><h4>En tu presupuesto (${ps.length} partidas)</h4><div class="pchips">${pc||'<span>Sin partidas enlazadas</span>'}</div></div></div>
+  </article>`;
+}
+function init(){
+  document.getElementById('defs').innerHTML=DEFS;
+  const box=document.getElementById('fichas');box.innerHTML=FICHAS.map(fichaHTML).join('');
+  const caps=['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16'];
+  const nF=c=>FICHAS.filter(f=>f.cap===c).length;
+  document.getElementById('tiles').innerHTML=caps.map(c=>`<button class="tile" data-c="${c}"><b>${c}</b><span>${CAPS[c]}</span><small>${nF(c)} ficha${nF(c)==1?'':'s'} · ${BUDGET.filter(b=>b[0]===c).length} partidas</small></button>`).join('');
+  document.getElementById('chips').innerHTML=`<button class="chip" data-c="" aria-pressed="true">Todo</button>`+caps.filter(c=>nF(c)).map(c=>`<button class="chip" data-c="${c}" aria-pressed="false">${c} ${CAPS[c]}</button>`).join('');
+  let cap='',q='';
+  const apply=()=>{let n=0;document.querySelectorAll('.ficha').forEach(a=>{const ok=(!cap||a.dataset.cap===cap)&&(!q||a.dataset.q.includes(q));a.hidden=!ok;if(ok)n++});
+    document.getElementById('count').textContent=n+' de '+FICHAS.length+' fichas';document.getElementById('vacio').hidden=n>0;
+    document.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.c===cap)))};
+  const setCap=c=>{cap=c;apply()};
+  document.getElementById('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(b)setCap(b.dataset.c)});
+  document.getElementById('tiles').addEventListener('click',e=>{const b=e.target.closest('.tile');if(b){setCap(b.dataset.c);document.getElementById('tools').scrollIntoView({behavior:'smooth'})}});
+  document.getElementById('q').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();apply()});
+  apply();
+}
+/* ===== Fichas (1/2): honorarios, demoliciones, albañilería ===== */
+const FICHAS=[
+{cap:'00',t:'Dirección de obra y apoyo técnico',s:'Quién decide, quién controla y qué queda por escrito durante toda la obra.',m:['DIRECCIÓN','APOYO TÉCNICO'],
+ d:{k:'flow',nodes:[['Replanteo','Medir en obra y validar planos con el cliente.'],['Visita semanal','Revisión del avance y de lo que se va a tapar.'],['Acta y fotos','Lo hablado y lo decidido, por escrito.'],['Cambios','Todo cambio con precio y plazo antes de ejecutarlo.'],['Certificación','Se cobra lo ejecutado y revisado.'],['Recepción','Repaso final y entrega de documentación.']]},
+ steps:[['Replanteo','Marcar tabiques, huecos y puntos de instalación sobre el suelo.'],['Visita semanal','Mismo día cada semana, con el oficial y el encargado.'],['Acta','Resumen de acuerdos y pendientes, enviado el mismo día.'],['Control antes de tapar','Nada se cierra sin foto y visto bueno.'],['Recepción','Lista de repasos, plazo para cerrarlos y entrega de boletines.']],
+ no:['Cambiar algo de palabra y descubrir el precio al certificar.','Tapar una instalación sin que nadie la haya revisado.','Dejar los repasos para "cuando haya tiempo".'],
+ si:['Cambio escrito: qué, cuánto cuesta y cuánto retrasa. Firmado antes de ejecutar.','Foto fechada de cada instalación antes de cerrarla.','Lista de repasos con responsable y fecha de cierre.'],
+ foto:'Panorámica de cada estancia en cada visita semanal, con fecha, para contrastar el avance.'},
+
+{cap:'01',t:'Demolición de tabiques y falsos techos',s:'Retirar particiones y techos sin tocar lo que se conserva y sin sorpresas de instalaciones.',m:['DEMOLICIÓN DE TABIQUES','DESMONTAJE DE FALSO TECHO','DEMOLICIÓN DE MOLDURAS','DEMOLICIONES INTERIORES','DESMONTAJE DE MÁMPARAS','DESMONTAJE CELOSIA'],
+ d:{k:'stud',demo:true,open:false,parts:[['canalInf','Canal inferior: se arranca y se retira',],['montante','Montante metálico: se desmonta tras las placas'],['lana','Lana mineral: se embolsa aparte'],['placa','Placas de yeso laminado a retirar'],['tornillo','Tornillos: se aflojan antes de tirar de la placa','R']]},
+ steps:[['Cortar suministros','Luz, agua y gas cerrados y comprobados antes de empezar.'],['Catas','Abrir un punto para ver qué hay dentro: tubos, cables, estructura.'],['Placas','Retirar por paños enteros, de arriba abajo, sin golpear.'],['Perfilería','Cortar y retirar canales y montantes. Sin dejar tornillos en el suelo.'],['Limpieza','Ensacar y bajar escombro al contenedor el mismo día.']],
+ no:['Derribar a maza un tabique sin saber si es de carga.','Dejar guías y tornillos en el suelo de la obra.','Mezclar lana mineral y escombro en el mismo saco.'],
+ si:['Comprobar con el técnico qué muros son estructurales antes de tocar.','Barrido y retirada de metal al terminar cada jornada.','Lana en bolsa cerrada, separada del escombro.'],
+ foto:'Interior del tabique abierto: tubos, cables y cualquier elemento que aparezca dentro.'},
+
+{cap:'01',t:'Demolición de solados y alicatados',s:'Quitar acabados hasta el soporte sano, sin dañar el forjado ni las tuberías empotradas.',m:['SOLADO DE TARIMA','SOLADOS DE LINÓLEO','DEMOLICIÓN DE CERÁMICOS','DEMOLICIÓN DE ALICATADOS','DESMONTAJE DE RODAPIÉ','DEMOLICIÓN DE DESNIVEL'],
+ d:{k:'layersH',layers:[['Acabado cerámico / tarima / PVC','1 cm',1,'#B9C4CE',true,'Acabado: se retira entero'],['Adhesivo o mortero de agarre','2 cm',1.2,'#D9D2C0',true,'Mortero de agarre: se pica hasta el soporte'],['Recrecido existente','5 cm',1.6,'#C9C2B3',true,'Recrecido: se retira solo si hay que bajar nivel'],['Forjado o solera','Se conserva',2.3,'conc',false,'Forjado: no se pica ni se debilita']]},
+ steps:[['Proteger','Cubrir bajantes, sumideros y carpinterías que se quedan.'],['Rodapié','Desmontarlo antes del suelo, para no romper el tabique.'],['Picado','Martillo ligero. Empezar por un borde y avanzar en una dirección.'],['Soporte','Raspar restos y aspirar. Revisar grietas y humedades.'],['Retirada','Ensacar el escombro y bajarlo con cuidado de no cargar el forjado.']],
+ no:['Picar con martillo pesado junto a bajantes y tuberías.','Acumular sacos de escombro en una sola zona del forjado.','Dejar el suelo picado sin aspirar y colocar encima.'],
+ si:['Martillo ligero y dirección de avance hacia la salida.','Repartir el peso y bajar el escombro cada día.','Soporte limpio, aspirado y revisado antes del siguiente oficio.'],
+ foto:'Soporte limpio al terminar, con una regla encima para ver desniveles.'},
+
+{cap:'01',t:'Desmontaje de carpintería, mobiliario y elementos',s:'Qué se retira, qué se guarda y cómo se deja registrado lo reutilizable.',m:['CRISTALERAS','VINILOS','TOLDOS','PUERTAS DE MADERA','PUERTAS ABATIBLE','PUERTAS DE VIDRIO INTERIOR','MUEBLES','MOSTRADOR','ARMARIOS EMPOTRADOS','ELEMENTOS DECORATIVOS'],
+ d:{k:'flow',nodes:[['Inventario','Listado de lo que se reutiliza y de lo que se tira.'],['Protección','Cubrir suelos y pasos de obra.'],['Desmontaje','Del elemento a su soporte, en orden inverso al montaje.'],['Etiquetado','Piezas reutilizables con etiqueta y ubicación.'],['Retirada','El resto, al contenedor o al gestor.']]},
+ steps:[['Inventario','Foto y nota de cada elemento, con "reutilizar" o "tirar".'],['Proteger','Filmar el suelo y los encuentros que se quedan.'],['Soltar','Primero herrajes y tornillos, luego la pieza.'],['Etiquetar','Nombre de la estancia y posición en cada pieza reutilizable.'],['Retirar','Salida por la ruta marcada, sin arrastrar piezas por el suelo.']],
+ no:['Arrancar una puerta "reutilizable" con una palanqueta.','Tirar herrajes y bisagras que luego hay que comprar.','Retirar una cristalera sin plan para los vidrios.'],
+ si:['Aflojar los herrajes y bajar la hoja entre dos personas.','Guardar herrajes en una bolsa etiquetada junto a cada pieza.','Cristal con ventosas y retirada con protección individual.'],
+ foto:'Cada elemento reutilizable, ya etiquetado, en la zona de acopio.'},
+
+{cap:'01',t:'Anulación de instalaciones antes de demoler',s:'Desconectar y señalizar fontanería, electricidad y clima para que la demolición sea segura.',m:['ANULACIÓN DE PUNTO','LUMINARIAS EXISTENTES','DESMONTAJE DE MECANISMO','EQUIPOS DE CLIMATIZACIÓN REUTILIZABLES'],
+ d:{k:'flow',nodes:[['Cortar suministros','Agua, luz y gas cerrados desde el origen.',true],['Comprobar','Sin tensión: probado con comprobador.',true],['Anular fontanería','Tapones en los puntos que se eliminan.'],['Desmontar mecanismos','Cables aislados y señalizados.'],['Equipos de clima','Si se reutilizan: gas recuperado y etiqueta.']]},
+ steps:[['Cortar','Llaves y diferenciales en OFF, con candado o cartel.'],['Comprobar','Verificar con comprobador que no hay tensión.'],['Anular puntos','Tapón en cada punto de agua que desaparece.'],['Luminarias y mecanismos','Retirar y aislar los cables en cajas de registro.'],['Equipos','Recuperar el gas con técnico habilitado si se reutiliza el equipo.']],
+ no:['Demoler con el cuadro conectado "porque es un momento".','Dejar un cable pelado detrás de la futura placa.','Soltar el gas del equipo a la atmósfera.'],
+ si:['Cuadro cortado, señalizado y comprobado antes de cada demolición.','Cables rematados con regletas dentro de caja registrable.','Gas recuperado por empresa habilitada.'],
+ foto:'Puntos de agua taponados y cajas de cables rematadas, antes de tapar.'},
+
+{cap:'01',t:'Cubierta: retirada de grava e impermeabilización',s:'Dejar la cubierta limpia hasta el soporte sano, separando los residuos bituminosos.',m:['RETIRADA DE GRAVA','DEMOLICIÓN IMPERMEABILIZACIÓN','FORJADO'],
+ d:{k:'layersH',layers:[['Capa de grava','5-10 cm',1.2,'grav',true,'Grava: se retira y se acopia'],['Lámina impermeable vieja','4 mm',0.7,'#2E3440',true,'Impermeabilización: se arranca por completo'],['Mortero de pendientes','',1.5,'#C9C2B3',false,'Pendientes: se conservan si están sanos'],['Forjado de cubierta','',2,'conc',false,'Forjado: se revisa, no se rompe']]},
+ steps:[['Revisión previa','Sumideros, petos y puntos singulares localizados y fotografiados.'],['Retirada de grava','Con pala y sacas, repartiendo cargas en el forjado.'],['Arranque de la lámina','En tiras, sin dañar el soporte. Residuo bituminoso aparte.'],['Limpieza','Barrido, aspirado y revisión de grietas.'],['Protección','Plástico provisional si se prevé lluvia antes de impermeabilizar.']],
+ no:['Acumular toneladas de grava en un rincón del forjado.','Mezclar los residuos bituminosos con el escombro normal.','Dejar la cubierta abierta con previsión de lluvia.'],
+ si:['Grava repartida en sacas y bajada con montacargas o cubo.','Residuos bituminosos en saco o contenedor propio, con tasa de gestor.','Plan de lluvia: plástico y sumideros despejados.'],
+ foto:'Soporte desnudo con los sumideros y los encuentros con petos.'},
+
+{cap:'01',t:'Descombro y contenedores',s:'Cómo se organiza la salida del escombro y cómo se justifica su gestión.',m:['DESCOMBRO'],
+ d:{k:'flow',nodes:[['Plan de residuos','Contenedor, telesacos o ambos, según la obra.'],['Acarreo','Del tajo al punto de carga, por ruta marcada.'],['Carga','Escombro por tipo: inertes, madera, metal.'],['Transporte','Gestor autorizado, con hoja de seguimiento.'],['Justificante','Certificado de gestión para el cliente.']]},
+ steps:[['Plan','Elegir contenedor o telesacos según accesos y permiso en vía pública.'],['Acarreo','Mismos recorridos cada día. Suelo protegido.'],['Segregar','Inertes, madera, metal y bituminosos por separado.'],['Retirada','Contenedor lleno al 100 %, no por encima del borde.'],['Justificante','Pedir y archivar el certificado de gestión.']],
+ no:['Llenar el contenedor por encima del borde.','Tirar al contenedor pintura o disolvente.','Retirar el escombro sin papeles del gestor.'],
+ si:['Carga a ras de borde y cubierto con lona.','Restos peligrosos en envase cerrado, para el gestor.','Documento de gestión guardado en la carpeta de obra.'],
+ foto:'Contenedor ya cargado y cubierto, con la hoja del gestor.'},
+
+{cap:'02',t:'Tabique de pladur',s:'Placa de yeso laminado sobre perfilería metálica, con lana mineral y huecos reforzados.',m:['TABIQUE PLACA PLADUR'],
+ d:{k:'stud',door:true,doble:true,parts:[['canalInf','Canal'],['montante','Montante'],['dim','Cada 60 cm'],['lana','Lana mineral'],['tornillo','Tornillos cada 25 cm aprox.','R'],['jamba','Refuerzo en la puerta','R'],['doble','Juntas de una cara desplazadas respecto a la otra','R']]},
+ steps:[['Replantear y fijar canales','Marcar en el suelo y fijar canal inferior y superior cada 60 cm.'],['Montantes a su distancia','Entre canales, cada 60 cm o menos. Dobles en el hueco de puerta.'],['Instalaciones y lana mineral','Pasar tubos antes de cerrar. Rellenar de lana sin comprimir.'],['Atornillar las placas','Cada 25 cm aprox. Tornillo enrasado, sin romper el cartón.'],['Contrapear las juntas','Las de una cara desplazadas respecto a la otra. Cinta y pasta.']],
+ no:['Montantes muy separados: la placa se curva.','Tornillo que rompe el cartón.','Juntas de las dos caras en el mismo montante.'],
+ si:['Montantes a 60 cm o menos, aplomados y alineados.','Tornillo enrasado, con la cabeza ligeramente hundida.','Juntas contrapeadas y desplazadas respecto a la otra cara.'],
+ foto:'Tabique abierto por una cara: montantes, lana, tubos y refuerzos del hueco.'},
+
+{cap:'02',t:'Pladur especial: hidrófugo, ignífugo y curvo',s:'Cuando el tabique tiene que resistir humedad, fuego o seguir una curva.',m:['HIDRÓFUGO','IGNÍFUGO','CURVO'],
+ d:{k:'layersV',layers:[['Placa ignífuga 15 mm (cara 1)','2 × 15',1,'#E7BFAE',false,'Doble placa ignífuga en cada cara'],['Perfilería + lana de roca','',1.6,'wool',false,'Lana de roca entre montantes'],['Placa ignífuga 15 mm (cara 2)','2 × 15',1,'#E7BFAE',false,'Juntas desplazadas entre capas']]},
+ steps:[['Elegir placa','Hidrófuga en húmedos, ignífuga en sectores, flexible en curvas.'],['Estructura','Montantes más cerca en curvas y con altura grande.'],['Curvar','Canales cortados en abanico. Placa humedecida o de 6 mm.'],['Doble capa','Cada capa con sus juntas, desplazadas 40 cm o más.'],['Tratar juntas','Pasta y cinta específica para cada tipo de placa.']],
+ no:['Usar placa normal en un baño o cocina "porque aguanta".','Pasar un tubo sin sellar por un tabique ignífugo.','Curvar la placa sin canales cortados.'],
+ si:['Placa hidrófuga y tratamiento de bajos en zona húmeda.','Todos los pasos de instalación sellados con masilla intumescente.','Canales cortados en abanico y montantes a menor distancia.'],
+ foto:'Cada capa de placa antes de cerrar la siguiente, con las juntas visibles.'},
+
+{cap:'02',t:'Trasdosado de pladur',s:'Revestimiento interior de un muro existente para aislar, nivelar o ocultar instalaciones.',m:['TRASDOSADO'],
+ d:{k:'layersV',layers:[['Muro existente','',1.3,'conc',false,'Muro existente: limpio y sin humedad'],['Cámara con perfilería y lana','4-5 cm',1.4,'wool',false,'Perfilería autoportante con lana mineral'],['Placa de yeso laminado','1,5 cm',0.8,'#E7E9EC',false,'Placa atornillada, con juntas tratadas']]},
+ steps:[['Revisar el muro','Sin humedad ni salitre: si la hay, se trata antes.'],['Replantear','Marcar el plano de la cara final con nivel o láser.'],['Perfilería','Canales fijados y montantes aplomados, separados del muro.'],['Aislante y cajas','Lana mineral y cajas de mecanismos antes de cerrar.'],['Placa','Atornillar y tratar juntas. Rematar en esquinas y huecos.']],
+ no:['Trasdosar sobre un muro con humedad activa.','Dejar la perfilería tocando el muro, sin banda ni separación.','Cerrar sin lana ni cajas de mecanismos.'],
+ si:['Muro seco, con la causa de la humedad resuelta.','Banda elástica entre perfilería y estructura.','Lana colocada y cajas fijadas al perfil antes de la placa.'],
+ foto:'Cámara abierta con lana y tubos, antes de colocar la placa.'},
+
+{cap:'02',t:'Falso techo de pladur',s:'Techo continuo suspendido para ocultar instalaciones y mejorar acabado.',m:['FALSO TECHO PLADUR'],
+ d:{k:'layersH',layers:[['Forjado','',1.2,'conc',false,'Forjado: punto de cuelgue'],['Cámara con instalaciones','10-30 cm',2,'#F2F4F8',false,'Cámara: tubos, conductos y lana si hay'],['Perfilería primaria y secundaria','5 cm',1,'#9AA7B8',false,'Perfilería con varillas de cuelgue cada 1 m aprox.'],['Placa de yeso laminado','1,5 cm',0.8,'#E7E9EC',false,'Placa atornillada cada 25 cm']]},
+ steps:[['Nivelar','Marcar el nivel final con láser en todo el perímetro.'],['Cuelgues','Varillas y horquillas fijadas al forjado, según tablas del fabricante.'],['Perfilería','Primarios y secundarios nivelados. Refuerzo en luminarias pesadas.'],['Instalaciones','Pasar todo antes de cerrar. Registros donde haga falta.'],['Placa y juntas','Placa atornillada, juntas con cinta y pasta, perímetro sellado.']],
+ no:['Colgar luminarias pesadas de la propia placa.','Cerrar sin dejar registro para una caja o válvula.','Perfilería torcida, que luego se nota con luz rasante.'],
+ si:['Refuerzo de perfilería en cada luminaria, cuelgue o rejilla.','Registros en válvulas, cajas y conexiones.','Láser en el replanteo y revisión con luz rasante.'],
+ foto:'Estructura del techo con instalaciones, antes de cerrar con placa.'},
+
+{cap:'02',t:'Dinteles, foseados, tabicas y muretes de pladur',s:'Los remates de pladur que dan forma al espacio: huecos, cajeados y barras.',m:['FOSEADO','DINTEL PLADUR','TABICA','MURETE','REMATES VARIOS'],
+ d:{k:'opening',kind:'cassette',parts:[['dintel','Dintel de pladur con perfil de refuerzo'],['guia','Guía superior fijada a estructura'],['cierre','Placa en ambas caras: remate de esquina'],['jamba','Jamba: montante doble y precerco'],['cassette','Cajeado hueco para la hoja corredera'],['hoja','Hoja con cajeado'],['suelo','Suelo y rodapié rematados']]},
+ steps:[['Replantear','Marcar altura y vuelo del foseado o dintel con láser.'],['Estructura','Perfilería con refuerzo donde vaya carga: luminarias, cortina, barra.'],['Instalaciones','Cables y focos preparados antes de cerrar.'],['Cierre y esquinas','Placa con cantoneras metálicas en aristas vivas.'],['Acabado','Pasta, lija y pintura. Revisar con luz rasante.']],
+ no:['Murete de barra sin estructura de acero detrás de la placa.','Esquina viva sin cantonera, que se desconcha.','Foseado sin hueco para registro de cables.'],
+ si:['Tubulares de hierro anclados, con placa atornillada a ellos.','Cantoneras en toda arista y pasta fina de acabado.','Registro oculto para cables o drivers.'],
+ foto:'Estructura del dintel o murete con los refuerzos, antes de la placa.'},
+
+{cap:'02',t:'Tabiques de ladrillo, bloque y medianeros acústicos',s:'Fábrica sólida para particiones, divisores con cámara y separación entre estancias o locales.',m:['TABIQUE LADRILLO','TABIQUE MAMPOSTERIA','TABIQUE HUECO','MEDIANERO','CERRAMIENTO MURO','BLOQUE HORMIGÓN','BANCO DE OBRA','SALA RAYOS X'],
+ d:{k:'brick',door:true,parts:[['pilar','Encuentro con pilar o muro: anclajes cada 2-3 hiladas','L'],['mortero','Juntas de mortero llenas de 1 cm','L'],['hilada','Hiladas niveladas, con traba','R'],['cargadero','Cargadero sobre el hueco','R'],['juntaSup','Junta con el forjado: banda elástica','R'],['replanteo','Replanteo con cordel y nivel','L']]},
+ steps:[['Replantear','Marcar el eje del tabique y los huecos. Comprobar escuadras.'],['Primera hilada','Nivelada y con mortero fresco. Es la que manda.'],['Elevar con traba','Cada hilada desplazada media pieza. Anclajes a pilares.'],['Huecos','Cargadero con apoyo mínimo de 15-20 cm a cada lado.'],['Cierre superior','Dejar junta de unos 2 cm y rellenarla con material elástico tras unos días.']],
+ no:['Levantar el tabique a tope contra el forjado con mortero rígido.','Juntas vacías o a medio llenar.','Medianero acústico con un hueco sin rellenar.'],
+ si:['Junta superior con banda o espuma elástica, rematada a los días.','Juntas llenas, con mortero de 1 cm.','Todo el medianero sellado en encuentros y pasos de instalación.'],
+ foto:'Encuentros con pilar y forjado antes del enfoscado, y la primera hilada nivelada.'},
+
+{cap:'02',t:'Recrecidos y nivelación de suelos',s:'Mortero, Cavity o autonivelante para dejar el suelo plano y listo para el solado.',m:['RECRECIDO','NIVELADO DE SUELO','PROTECCIÓN DE SUELO'],
+ d:{k:'layersH',perim:true,layers:[['Solado (después)','',0.8,'#B9C4CE',false,'Solado: el siguiente oficio'],['Autonivelante','3-10 mm',0.7,'#D8D2C3',false,'Autonivelante: según ficha del fabricante'],['Recrecido de mortero o Cavity','4-6 cm',1.6,'#C9C2B3',false,'Recrecido con banda perimetral'],['Instalaciones y lámina','',1,'#E8DFA8',false,'Tubos cubiertos y lámina separadora'],['Forjado','',1.8,'conc',false,'Forjado limpio, imprimado']]},
+ steps:[['Soporte','Limpio y sin polvo. Imprimar según el producto.'],['Banda perimetral','Tira elástica en el contorno de cada estancia.'],['Niveles','Maestras o láser para el nivel final en todo el piso.'],['Vertido y reglado','Extender, regar y dejar curar. Sin pisar.'],['Curado','Esperar el tiempo del fabricante antes de colocar el solado.']],
+ no:['Recrecer sin banda perimetral: el mortero se fisura al dilatar.','Colocar suelo sobre recrecido aún húmedo.','Autonivelante sobre soporte sin imprimar.'],
+ si:['Banda perimetral en todo el contorno.','Humedad medida con higrómetro antes de solar.','Imprimación del soporte según el fabricante.'],
+ foto:'Instalaciones cubiertas con la banda perimetral colocada, antes de verter.'},
+
+{cap:'02',t:'Cubierta plana: pendientes y tela asfáltica',s:'Formar pendientes, impermeabilizar y rematar los puntos singulares.',m:['CREACIÓN DE PENDIENTES','TELA ASFÁLTICA','MAQUINARIA'],
+ d:{k:'layersH',layers:[['Protección (grava o solado)','5 cm',1.1,'grav',false,'Protección pesada: grava o solado'],['Lámina asfáltica bicapa','2 × 4 mm',0.8,'#2E3440',false,'Lámina bicapa soldada, con solapes'],['Imprimación','',0.5,'#6B6F7A',false,'Imprimación asfáltica'],['Capa de regularización','2 cm',0.9,'#C9C2B3',false,'Regularización lisa'],['Formación de pendientes','1-5 %',1.6,'#B88F6A',false,'Pendientes de arcilla expandida: 1-5 %'],['Forjado','',1.4,'conc',false,'Forjado de cubierta']]},
+ steps:[['Pendientes','Trazar con maestras. Pendiente del 1 al 5 % hacia sumideros.'],['Regularizar','Capa lisa y sin fisuras. Esperar curado antes de imprimar.'],['Imprimar','Cubrir toda la superficie con la imprimación del sistema.'],['Lámina','Dos capas desfasadas, solapes de 10 cm, remate subido por el peto.'],['Puntos singulares','Sumideros, caperuzas y petos con refuerzo. Prueba de estanqueidad.']],
+ no:['Lámina sin subir 20 cm por el peto.','Sumidero a un nivel más alto que su entorno: el agua se queda.','Poner la protección sin probar antes la estanqueidad.'],
+ si:['Impermeabilización subida al menos 20 cm por el paramento.','Sumideros en el punto más bajo, con refuerzo.','Prueba de inundación de 24-48 h antes de la protección.'],
+ foto:'Lámina con puntos singulares rematados (sumideros y petos), antes de la protección.'},
+
+{cap:'02',t:'Aislamiento acústico y térmico',s:'Lana de roca en tabiques y lámina bajo suelo flotante: dónde va y cómo se coloca.',m:['AISLAMIENTO'],
+ d:{k:'layersH',perim:true,layers:[['Acabado final','',0.8,'#B9C4CE',false,'Acabado'],['Mortero o recrecido','5 cm',1.4,'#C9C2B3',false,'Recrecido flotante, sin tocar paredes'],['Lámina antiimpacto (Copopren)','',0.6,'#F6E58D',false,'Lámina aislante continua, solapada y sellada'],['Forjado','',1.8,'conc',false,'Forjado']]},
+ steps:[['Elegir sistema','Acústico para ruido aéreo y de impacto, térmico para frío y calor.'],['Lana de roca','Rellenar el tabique de montante a montante, sin comprimir.'],['Lámina de suelo','Extender sin huecos, subiendo por las paredes.'],['Solapes','Solapar y sellar con cinta adhesiva.'],['Recrecido flotante','Sin contacto con paredes ni con tubos rígidos.']],
+ no:['Lana comprimida o con huecos en el tabique.','Lámina rota y sin solapes bajo el mortero.','Recrecido en contacto con el tabique: puente acústico.'],
+ si:['Panel entero entre montantes y justo de ancho.','Lámina continua, solapada y sellada.','Banda perimetral separando el recrecido de cada pared.'],
+ foto:'Lámina extendida y sellada, con la subida por los muros antes de verter el mortero.'},
+
+{cap:'02',t:'Recibidos de precercos, cassette y ventanas',s:'Fijar a la obra los elementos que luego reciben puertas y ventanas.',m:['RECIBIDO'],
+ d:{k:'opening',kind:'door',parts:[['precerco','Precerco aplomado y escuadrado','L'],['dintel','Dintel o cargadero sobre el hueco','R'],['cerco','Cerco: se coloca sobre el precerco ya recibido','R'],['holgura','Holgura bajo la puerta: unos 8-10 mm','R']]},
+ steps:[['Replantear el hueco','Medir ancho, alto y espesor de pared y suelo acabado.'],['Colocar el precerco','Aplomado, escuadrado y calzado con cuñas.'],['Fijar','Garras o tornillos a la fábrica, sin deformar.'],['Rellenar','Mortero o espuma en el perímetro, sin comprimir el marco.'],['Comprobar','Diagonales iguales y plomo en jambas. Sacar las cuñas al fraguar.']],
+ no:['Precerco girado, con diagonales distintas.','Cuñas dejadas dentro del mortero.','Puerta que no cierra por haber recibido el precerco torcido.'],
+ si:['Diagonales iguales y aplomado en dos planos.','Cuñas retiradas a su tiempo.','Puerta de prueba antes de cerrar el tabique.'],
+ foto:'Precerco recibido con la diagonal medida y el nivel marcado.'},
+
+{cap:'02',t:'Andamios, plataformas y plan de seguridad',s:'Trabajar en altura con el plan de seguridad al día y el andamio montado por quien debe.',m:['ANDAMIOS','PLATAFORMA ELEVADORA','SEGURIDAD Y SALUD','ACARREO'],
+ d:{k:'flow',nodes:[['Plan de seguridad y salud','Redactado y firmado antes de empezar.',true],['Plan de montaje','Para andamios, según altura.'],['Montaje certificado','Por personal formado, con certificado.',true],['Uso','Barandillas, rodapiés y arnés donde toque.'],['Revisión diaria','Visto bueno antes de subir.'],['Desmontaje','Por tramos, de arriba abajo.']]},
+ steps:[['Plan','Tener el plan de seguridad firmado antes del primer día.'],['Montaje','Con personal formado y certificado de montaje.'],['Uso diario','Revisar anclajes y barandillas antes de subir.'],['Plataforma elevadora','Operador formado, arnés y balizado de la zona.'],['Desmontaje','De arriba abajo, sin tirar piezas desde altura.']],
+ no:['Subir a un andamio sin barandilla en una de sus caras.','Subir a la plataforma elevadora sin arnés o sin formación.','Dejar herramientas sueltas sobre la plataforma.'],
+ si:['Barandilla completa con rodapié en todas las caras.','Operador formado y arnés enganchado en la cesta.','Herramientas atadas o en bolsa.'],
+ foto:'Andamio montado, con el certificado de montaje y las barandillas.'},
+];
+/* ===== Fichas (2/2): solados, instalaciones, carpintería, acabados, PCI, estructura ===== */
+FICHAS.push(
+{cap:'03',t:'Solado cerámico y porcelánico',s:'Baldosa sobre soporte plano, con adhesivo bien repartido y juntas que trabajan.',m:['SOLADO PORCELÁNICO','SOLADO CERÁMICO','COLOCACIÓN SOLADOS CERÁMICO','SUELO CERÁMICO'],
+ d:{k:'layersH',perim:true,layers:[['Baldosa porcelánica','1 cm',0.9,'#B9C4CE',false,'Baldosa con junta de 2-3 mm'],['Adhesivo cementoso C2','3-5 mm',0.6,'#D9D2C0',false,'Adhesivo, doble encolado en formatos grandes'],['Recrecido o regularización','4-5 cm',1.5,'#C9C2B3',false,'Soporte plano y curado'],['Forjado o solera','',1.8,'conc',false,'Forjado']]},
+ steps:[['Soporte','Plano, limpio y curado. Humedad por debajo del límite del adhesivo.'],['Replanteo','Probar la distribución en seco. Evitar tiras estrechas en puertas.'],['Adhesivo','Llana dentada. Doble encolado en formatos grandes.'],['Colocar','Cruces o nivelador, junta mínima de 2 mm. Revisar planeidad.'],['Rejuntar y sellar','Juntas de dilatación en el perímetro y cada paño grande.']],
+ no:['Pegar sobre el mortero sin curar.','Colocar sin dejar junta, "para que se vea limpio".','Huecos bajo la baldosa que suenan a hueco.'],
+ si:['Medir humedad residual antes de pegar.','Junta de 2 mm como mínimo, y perimetral siempre.','Doble encolado y presión hasta aplastar los surcos.'],
+ foto:'Replanteo en seco y una baldosa levantada para ver el reparto del adhesivo.'},
+
+{cap:'03',t:'Suelo laminado',s:'Suelo flotante sobre lámina, con juntas de dilatación y solera seca.',m:['LAMINADO'],
+ d:{k:'layersH',perim:true,layers:[['Tablero laminado','8-12 mm',1,'#C79B66',false,'Laminado con junta perimetral de 8-10 mm'],['Lámina base','2-3 mm',0.5,'#F6E58D',false,'Lámina base: aislante y barrera de vapor'],['Solera seca y nivelada','',1.8,'#C9C2B3',false,'Soporte plano y seco'],['Forjado','',1.4,'conc',false,'Forjado']]},
+ steps:[['Soporte seco','Medir humedad. Plano en 2 mm por 2 m de regla.'],['Lámina','Extender con solapes y sellado con cinta.'],['Primera hilera','Con separadores contra la pared.'],['Tablas','Juntas desplazadas 30 cm o más. Cortar con holgura.'],['Rodapié','Fijar al muro, sin presionar el suelo.']],
+ no:['Pegar el rodapié al suelo flotante.','Colocar sin junta perimetral.','Montar sobre un soporte con humedad.'],
+ si:['Rodapié fijado a la pared y con holgura en la base.','Junta perimetral de unos 10 mm.','Humedad medida antes de abrir los paquetes.'],
+ foto:'Lámina extendida con los solapes sellados y los separadores perimetrales.'},
+
+{cap:'03',t:'Suelo vinílico y moqueta',s:'Vinílico en click o en rollo, y moqueta modular, sobre soporte liso y seco.',m:['VINÍLICO','MOQUETA'],
+ d:{k:'layersH',layers:[['Vinílico o moqueta','2-5 mm',0.7,'#7C8FA3',false,'Vinílico en click, rollo o losetas de moqueta'],['Adhesivo o subcapa','',0.5,'#D9D2C0',false,'Adhesivo o subcapa según sistema'],['Autonivelante','2-5 mm',0.6,'#D8D2C3',false,'Autonivelante: soporte liso'],['Solera','',1.6,'conc',false,'Solera seca y limpia']]},
+ steps:[['Soporte liso','Cualquier resalte se transparenta. Lijar o nivelar.'],['Aclimatar','Dejar el material 24-48 h en la estancia.'],['Replantear','Empezar por el centro o por la pared más visible.'],['Colocar','Click con juntas desplazadas; rollos con soldadura en frío.'],['Rematar','Perfiles y rodapiés. Probar puertas.']],
+ no:['Colocar sobre soporte con fisuras o grietas.','Dejar el material en la caja sin aclimatar.','Encolar rollos sin dejar ventilar.'],
+ si:['Nivelar y reparar el soporte primero.','Aclimatar el material en obra.','Ventilar y seguir el tiempo abierto del adhesivo.'],
+ foto:'Soporte nivelado con regla antes de colocar, con una junta de pared cubierta.'},
+
+{cap:'03',t:'Alicatados',s:'Azulejo en paredes de baño y cocina: soporte, replanteo, junta y remate.',m:['ALICATADO'],
+ d:{k:'layersV',layers:[['Tabique o muro','',1.2,'#E7E9EC',false,'Soporte aplomado y limpio'],['Imprimación o enfoscado','',0.6,'#C9C2B3',false,'Imprimación o capa de regularización'],['Adhesivo C2','3-5 mm',0.6,'#D9D2C0',false,'Adhesivo con llana dentada'],['Azulejo','',0.9,'#8FB0C8',false,'Azulejo con junta mínima'],['Junta','',0.5,'#F4F4F1',false,'Junta o sellado en esquinas']]},
+ steps:[['Soporte','Aplomado, limpio, imprimado y sin salitre.'],['Replanteo','Una línea nivelada y simetría en la pared.'],['Adhesivo','En la pared y en el reverso, para eliminar huecos.'],['Colocar','Con crucetas, sin dejar piezas muy cortadas en esquinas.'],['Rejuntar','Cuando haya curado. Silicona en esquinas y encuentros.']],
+ no:['Alicatar sobre pared mojada o con humedad.','Rejuntar con adhesivo aún fresco.','Esquinas rejuntadas con mortero rígido.'],
+ si:['Soporte seco y en plano.','Rejuntado al día siguiente.','Silicona en esquinas y en los encuentros con el plato de ducha.'],
+ foto:'Primera línea de azulejo nivelada y el replanteo de las piezas de corte.'},
+
+{cap:'03',t:'Microcemento, epoxi y hormigón pulido',s:'Acabados continuos: capas finas que exigen un soporte muy bien preparado.',m:['EPOXI','MICROCEMENTO','HORMIGÓN PULIDO'],
+ d:{k:'layersH',layers:[['Sellador','2 capas',0.5,'#A9A29A',false,'Sellador final: protege y da el brillo'],['Microcemento / epoxi','2-3 capas',0.7,'#B9B3A8',false,'Capas finas, lijadas entre manos'],['Puente de unión','',0.4,'#D9D2C0',false,'Imprimación o puente de adherencia'],['Soporte duro y plano','',1.7,'conc',false,'Soporte duro, limpio, plano y sano']]},
+ steps:[['Soporte','Duro, plano y sin polvo. Reparar fisuras con malla.'],['Imprimación','Puente de unión según el sistema.'],['Capas finas','Una tras otra, con lijado fino entre ellas.'],['Color y textura','Una prueba previa en una zona oculta.'],['Sellado','Capas de sellador. Evitar uso durante el tiempo de curado.']],
+ no:['Aplicar sobre un soporte con fisuras vivas.','Cambiar de lote de color en medio de una pared.','Pisar el suelo antes del curado.'],
+ si:['Fisuras tratadas con malla antes de empezar.','Material del mismo lote, mezclado en un solo bidón.','Zona acordonada durante el curado.'],
+ foto:'Prueba de color y textura en un muestrario aprobado por el cliente.'},
+
+{cap:'03',t:'Rodapiés, media caña y pletinas',s:'Remate entre suelo y pared, y encuentros entre dos solados distintos.',m:['RODAPIÉ','PLETINAS'],
+ d:{k:'layersH',layers:[['Pared acabada','',1.2,'#F4F4F1',false,'Pared: pintura posterior al rodapié'],['Rodapié','7-10 cm',1.2,'#E8E8E3',false,'Rodapié a inglete en esquinas'],['Junta elástica','',0.5,'#2E3440',false,'Sellado elástico, no mortero'],['Suelo','',1.2,'#B9C4CE',false,'Suelo terminado']]},
+ steps:[['Replantear','Medir esquinas y huecos para que los cortes caigan bien.'],['Cortar a inglete','En esquinas, con sierra de ingletes.'],['Fijar','Pegado o clavado. En suelo flotante, solo a la pared.'],['Sellar','Silicona o masilla en la junta con la pared.'],['Pletinas','En cambios de material, a eje de puerta y niveladas.']],
+ no:['Rodapié pegado al suelo flotante.','Esquinas a tope con hueco visible.','Pletina fuera del eje de la puerta.'],
+ si:['Fijación solo a la pared y holgura inferior.','Ingletes cortados con medición en obra.','Pletina centrada bajo la hoja cerrada.'],
+ foto:'Rodapié colocado y una pletina de transición en una puerta.'},
+
+{cap:'04',t:'Fontanería: de la acometida al grifo',s:'Cómo viaja el agua por la vivienda y qué se prueba antes de cerrar.',m:['BOLETÍN DE AGUA','DISTRIBUCIÓN','INSTALACIÓN FONTANERÍA','TERMO','LLAVES DE CORTE','CONTADOR'],
+ d:{k:'flow',nodes:[['Contador','Reubicación y boletín de agua.'],['Llave general','Corte total de la vivienda.'],['Distribución','Multicapa o PEX, fría y caliente, por rozas.'],['Llaves de corte','Una por cada cuarto húmedo.'],['Termo 100 L','Con desagüe y válvula de seguridad.'],['Aparatos','Con latiguillos y llaves de escuadra.']]},
+ steps:[['Replantear puntos','Con el cliente: lavabo, ducha, lavadora, fregadero.'],['Tendido','Tubos aislados, sin tramos tensos y con pendientes de desagüe continuas.'],['Llaves','Una por cuarto húmedo, accesibles y señaladas.'],['Prueba','Presión a 1,5 veces la de servicio antes de cerrar rozas.'],['Cierre','Cada punto señalizado y fotografiado antes de tapar.']],
+ no:['Cerrar las rozas sin prueba de presión.','Desagüe sin pendiente continua: se atasca.','Llave de corte tapada tras una puerta o mueble.'],
+ si:['Prueba de presión con manómetro y registro.','Desagüe con pendiente continua y sin contrapendientes.','Llaves de corte accesibles y señaladas.'],
+ foto:'Red de tuberías y puntos de agua con el manómetro marcando la presión de prueba.'},
+
+{cap:'12',caps:['04','12'],t:'Aparatos sanitarios y grifería',s:'Inodoro, lavabo, ducha, mampara y baño accesible: fijación, sellado y prueba.',m:['APARATOS SANITARIOS','INODORO','LAVABO','BARRAS','MÁMPARA','PLATO DUCHA','ESPEJO','MUEBLE LAVABO'],
+ d:{k:'flow',nodes:[['Desagües','Pendiente y sifones registrables.'],['Plato de ducha','Nivelado, con sellado perimetral.'],['Inodoro','Fijado al suelo o suspendido sobre bastidor.'],['Lavabo y mueble','Anclajes a tabique reforzado.'],['Grifería','Latiguillos con llave de escuadra.'],['Mampara y espejo','Al final, con silicona sanitaria.']]},
+ steps:[['Comprobar refuerzos','Bastidores y placas de refuerzo para colgar y apoyar.'],['Plato de ducha','Nivelado, con desagüe probado antes de alicatar.'],['Colocar aparatos','Sin forzar tornillos, con juntas de goma.'],['Sellar','Silicona sanitaria en bordes, tras limpiar y secar.'],['Prueba','Abrir todos los puntos y revisar fugas 24 h.']],
+ no:['Colgar un lavabo de un tabique sin refuerzo.','Silicona sobre superficie húmeda o sucia.','Barras abatibles fijadas solo a la placa.'],
+ si:['Refuerzo de madera o metal detrás de cada anclaje.','Silicona sobre superficie limpia y seca.','Barras de baño accesible fijadas al refuerzo estructural.'],
+ foto:'Refuerzos detrás del tabique, antes de cerrar, con cota de altura marcada.'},
+
+{cap:'05',t:'Climatización: splits y aire por conductos',s:'Unidades interiores y exteriores, líneas y evacuación de condensados.',m:['SPLITS','AIRE POR CONDUCTOS','RECUPERADOR','CONDUCTOS DE CLIMATIZACIÓN','REJILLA','MAQUINAS DE AIRE'],
+ d:{k:'flow',nodes:[['Unidad exterior','Anclada con soportes antivibratorios.'],['Línea frigorífica','Tubo aislado, con pendiente y sin dobleces.'],['Unidad interior','Nivelada, con desagüe asegurado.'],['Condensados','Pendiente continua hasta el desagüe.'],['Línea eléctrica','Circuito propio y protegido.'],['Puesta en marcha','Vacío, carga y prueba de funcionamiento.']]},
+ steps:[['Ubicar','Que no sople a puestos fijos. Espacio de servicio.'],['Líneas','Tubo cobre aislado, con curvas amplias y sin aplastar.'],['Evacuación','Pendiente continua hacia desagüe. Sifón si es necesario.'],['Vacío y carga','Con bomba de vacío y manómetros; sin pérdida de presión.'],['Puesta en marcha','Medir temperaturas y revisar vibraciones.']],
+ no:['Evacuación de condensados con contrapendiente.','Tubo frigorífico sin aislar o aplastado.','Unidad exterior sin espacio de servicio.'],
+ si:['Pendiente continua y registro del tramo.','Aislamiento completo y curvas amplias.','Distancia libre alrededor de la unidad exterior.'],
+ foto:'Líneas frigoríficas aisladas antes de cerrar, con la pendiente de los condensados.'},
+
+{cap:'05',t:'Gas, humos y ventilación forzada',s:'Salidas de humos, extracción y tomas de gas: lo que se legaliza.',m:['GAS','VENTILACIÓN FORZADA','SALIDA DE HUMOS','CAMPANA'],
+ d:{k:'flow',nodes:[['Toma de gas','Instalada por empresa habilitada.',true],['Prueba de estanqueidad','Antes de dar servicio.',true],['Certificado','Certificado de instalación de gas.'],['Salida de humos','Tubos con resistencia al fuego EI 30.'],['Campana','Conectada a extracción de humos.'],['Ventilación forzada','En salas sin ventilación natural.']]},
+ steps:[['Proyecto','Legalización de la receptora de gas con documentación técnica.'],['Instalación','Solo instalador habilitado, con material certificado.'],['Prueba','Estanqueidad antes de abrir el paso.'],['Humos y extracción','Tubos EI 30 y continuidad hasta la salida.'],['Certificado','Entregar el certificado al cliente y a la distribuidora.']],
+ no:['Dar servicio de gas sin prueba ni certificado.','Conectar la campana a un conducto de ventilación común.','Sala cerrada sin ventilación ni extracción.'],
+ si:['Prueba de estanqueidad documentada y firmada.','Conducto propio de la campana hasta la salida.','Ventilación forzada en salas sin aire natural.'],
+ foto:'Instalación de gas con el sello de prueba y el trazado de humos antes de cerrar.'},
+
+{cap:'05',t:'Radiadores y toalleros',s:'Cambio o colocación de radiadores sin vaciar toda la instalación.',m:['RADIADOR'],
+ d:{k:'flow',nodes:[['Cerrar el circuito','Llaves de entrada y retorno.'],['Vaciar el radiador','Por el purgador, con recipiente.'],['Desmontar','Soltar y tapar las tomas.'],['Soportes','A tabique reforzado o muro.'],['Conectar','Cinta o estopa y revisión de juntas.'],['Purgar y probar','Presión y fugas.']]},
+ steps:[['Cerrar','Cerrar llaves y despresurizar la zona.'],['Desmontar','Soltar y tapar las tomas de inmediato.'],['Soportes','Fijar con la altura al suelo del fabricante.'],['Conectar','Juntas nuevas y llaves de reglaje.'],['Purgar','Aire fuera y revisar la presión del circuito.']],
+ no:['Colgar el radiador solo de la placa.','Dejar las tomas abiertas tras desmontar.','Olvidar purgar el aire tras la reforma.'],
+ si:['Soportes anclados al muro o a refuerzo.','Tapones en tomas, siempre que se desmonte.','Purga y revisión de presión tras la puesta en marcha.'],
+ foto:'Radiador colocado con las tomas visibles y la altura medida.'},
+
+{cap:'06',t:'Electricidad: cuadro, circuitos y boletín',s:'Del contador al enchufe: protecciones, secciones y certificado.',m:['BOLETÍN ELÉCTRICO','PROYECTO INGENIERÍA','ACOMETIDA','CUADRO ELÉCTRICO','NUEVA LÍNEA'],
+ d:{k:'flow',nodes:[['Acometida','Hasta la caja general de protección.'],['Contador','Medida, a cargo de la distribuidora.'],['Cuadro eléctrico','IGA, diferenciales de 30 mA y magnetotérmicos.',true],['Circuitos','10 A luz, 16 A tomas, 20 A lavadora y otros.'],['Puesta a tierra','Medida y registrada.',true],['Boletín','Certificado de instalación con instalador autorizado.']]},
+ steps:[['Calcular','Potencia y circuitos con el instalador. Previsión de ampliación.'],['Cuadro','Montaje ordenado, con etiquetado de cada circuito.'],['Líneas','Sección según circuito: 1,5 mm² (10 A), 2,5 mm² (16 A), 4 mm² (20 A).'],['Pruebas','Aislamiento, tierra y diferenciales.'],['Boletín','Entrega del certificado y esquema unifilar.']],
+ no:['Un único diferencial para todos los circuitos: si salta, se apaga todo.','Cuadro sin etiquetas.','Conectar sin comprobar la toma de tierra.'],
+ si:['Varios diferenciales de 30 mA y circuitos independientes.','Cada circuito con etiqueta y esquema.','Resistencia de tierra medida y anotada.'],
+ foto:'Cuadro abierto con los circuitos etiquetados y el cableado ordenado.'},
+
+{cap:'06',t:'Puntos de luz, enchufes y mecanismos',s:'Replanteo de cada punto con el cliente, alturas y registro antes de cerrar.',m:['DISTRIBUCIÓN DE ELECTRICIDAD','PUNTO DE LUZ','PUNTOS DE LUD','TOMA DE ENCHUFE','LÍNEA DE CONEXIÓN DE AIRE'],
+ d:{k:'flow',nodes:[['Replanteo','Con el cliente: muebles, cabecero, cocina.'],['Tubos y rozas','Verticales y horizontales, por trazado lógico.'],['Cajas','Alturas tipo: interruptores a unos 105 cm, enchufes a unos 30 cm.'],['Cableado','Colores y secciones según circuito.'],['Mecanismos','Al final, con los acabados ya terminados.']]},
+ steps:[['Replanteo','Marcar sobre el tabique cada punto con el cliente.'],['Rozas y tubos','Tubo corrugado, sin tramos tensos y con caja de registro.'],['Cajas','Niveladas y a alturas tipo, salvo diseño distinto.'],['Cableado','Cable por circuito, con conductor de protección.'],['Mecanismos','Instalar al final y probar cada punto.']],
+ no:['Roza diagonal que debilita el tabique.','Caja torcida que luego no deja entrar el mecanismo.','Mecanismos instalados antes de pintar.'],
+ si:['Rozas verticales y horizontales, nunca en diagonal.','Cajas niveladas con láser.','Mecanismos al final, con el acabado ya terminado.'],
+ foto:'Cada pared con las cajas marcadas y a nivel, antes de la pasta.'},
+
+{cap:'06',t:'Telecomunicaciones, seguridad y sonido',s:'Datos, teléfono, timbre, cámaras, música y luces de emergencia.',m:['TOMA DE TELEFONÍA','TOMA DE DATOS','TIMBRE','TELEFONILLO','LUCES DE EMERGENCIA','CÁMARAS','MÚSICA'],
+ d:{k:'flow',nodes:[['Canalización','Tubos independientes de la fuerza.'],['Tomas de datos y teléfono','Con cable categoría 6 como mínimo.'],['Videoportero y timbre','Con alimentación y cableado propios.'],['Cámaras de seguridad','Con punto de electricidad y cable de datos.'],['Música','Altavoces y cableado hasta el rack.'],['Emergencias','Luminarias autónomas con batería.']]},
+ steps:[['Canalizar','Tubos independientes de la fuerza para evitar interferencias.'],['Cableado','Etiquetar cada extremo. Cable de calidad.'],['Rack o registro','Punto central ordenado y accesible.'],['Equipos','Instalar y configurar al final de obra.'],['Pruebas','Probar cada punto y entregar planos del cableado.']],
+ no:['Pasar el cable de datos pegado al de fuerza.','Cable sin etiquetar, imposible de identificar.','Cámara sin ventilación ni alimentación.'],
+ si:['Canalizaciones separadas de las de 230 V.','Etiqueta en ambos extremos de cada cable.','Plano de cableado y credenciales entregados al cliente.'],
+ foto:'Registro con el cableado etiquetado y el plano de la instalación.'},
+
+{cap:'07',t:'Ventanas y acristalamientos',s:'Montaje de carpintería exterior: premarco, sellado y vidrio.',m:['VENTANA','ACRISTALAMIENTO','MONTAJE VENTANAS'],
+ d:{k:'opening',kind:'window',parts:[['dintel','Dintel: carga sobre el hueco','L'],['premarco','Premarco o garras: aplomado y fijado','L'],['marco','Marco con rotura de puente térmico','L'],['vidrio','Doble acristalamiento Climalit','R'],['hoja','Hoja practicable','R'],['vierteaguas','Vierteaguas con pendiente y goterón','R'],['sellado','Sellado exterior continuo','R']]},
+ steps:[['Medir en obra','Hueco acabado, no del plano. Escuadra y plomo.'],['Premarco','Aplomado y fijado con garras o tornillos, sin deformar.'],['Marco y hoja','Calzar, fijar y comprobar cierre y holguras.'],['Espuma y sellado','Espuma por dentro, sellante por fuera. Sin huecos.'],['Vierteaguas','Pendiente hacia fuera y goterón.']],
+ no:['Espuma sin sellado exterior: el agua entra por detrás.','Vierteaguas plano, el agua se queda.','Marco forzado y deformado al fijar.'],
+ si:['Sellado exterior continuo y espuma interior.','Pendiente hacia fuera con goterón.','Marco calzado y escuadrado antes de fijar.'],
+ foto:'Perímetro de la ventana antes del sellado, con la espuma recortada y el vierteaguas.'},
+
+{cap:'07',t:'Puertas de acceso, rejas, toldos y cierres',s:'Los elementos que dan seguridad y protección en fachada.',m:['REJA','PUERTA DE ACCESO','PUERTA ACORAZADA','PUERTA BLINDADA','TOLDOS','CIERRE METÁLICO','INSTALACIÓN REJAS'],
+ d:{k:'opening',kind:'window',reja:true,toldo:true,parts:[['toldo','Toldo: brazos anclados a la estructura','L'],['dintel','Dintel o cargadero','L'],['marco','Marco con anclajes al muro','L'],['reja','Reja de acero anclada a la fábrica','R'],['vidrio','Vidrio o acristalamiento','R'],['vierteaguas','Vierteaguas','R']]},
+ steps:[['Replantear','Medir con el hueco acabado y con el tipo de fijación.'],['Anclajes','Taladro y química o anclaje mecánico en la fábrica sólida.'],['Montaje','Aplomado y nivelado, con ayuda si hace falta.'],['Sellado','Silicona o poliuretano exterior.'],['Revisión','Pintura, cerradura y maniobra de apertura.']],
+ no:['Anclar una reja a un tabique hueco.','Dejar el toldo sin anclaje a estructura.','Puerta blindada con la cerradura sin regular.'],
+ si:['Anclajes a fábrica maciza o a estructura.','Brazos del toldo fijados a puntos resistentes.','Maniobra de cerradura revisada con el cliente.'],
+ foto:'Anclajes visibles antes de pintar y sellar.'},
+
+{cap:'08',t:'Puerta de paso abatible',s:'De madera, enrasada o doble hoja: precerco, cerco, hoja y herrajes.',m:['ABATIBLE','ENRASADA','REUTILIZACIÓN','CONDENA'],
+ d:{k:'opening',kind:'door',parts:[['dintel','Dintel o hueco acabado','L'],['precerco','Precerco recibido y aplomado','L'],['tapajuntas','Tapajuntas o cerco','L'],['bisagras','Bisagras: tres, bien alineadas','L'],['hoja','Hoja de madera','R'],['manilla','Manilla y condena','R'],['holgura','Holgura con el suelo: 8-10 mm','R']]},
+ steps:[['Hueco','Aplomado y a escuadra, con el suelo terminado.'],['Cerco','Fijar al precerco, sin forzar el cerco.'],['Hoja','Colgada sobre bisagras bien alineadas.'],['Herrajes','Manilla, cerradura y tope.'],['Ajuste','Holgura uniforme, cierra sin rozar.']],
+ no:['Hoja que roza con el suelo terminado.','Bisagras desalineadas: la puerta se abre sola.','Colocar antes de colocar el suelo.'],
+ si:['Holgura con el suelo de 8-10 mm, medida con el suelo acabado.','Bisagras alineadas con plomo.','Puertas colocadas tras terminar suelos y pintura.'],
+ foto:'Puerta cerrada y abierta a 90 grados, para revisar holguras.'},
+
+{cap:'08',t:'Puerta corredera con cassette',s:'Puerta que desaparece dentro del tabique: estructura, guía y hoja.',m:['CORREDERA'],
+ d:{k:'opening',kind:'cassette',parts:[['guia','Guía superior nivelada','R'],['dintel','Dintel sobre la guía','L'],['cassette','Cassette: armazón metálico dentro del tabique','R'],['hoja','Hoja corredera','L'],['jamba','Jamba de cierre','L'],['tirador','Tirador embutido','L'],['cierre','Pladur sobre el cassette','R']]},
+ steps:[['Replantear','Tabique con espesor suficiente para el cassette.'],['Armazón','Cassette anclado, aplomado y a escuadra.'],['Cierre de placa','Placa atornillada sin tocar el interior del cassette.'],['Hoja y guía','Colgar y regular alturas y holguras.'],['Remate','Jambas, tirador y topes.']],
+ no:['Atornillar la placa dentro del recorrido de la hoja.','Cassette torcido, con la hoja rozando.','Instalaciones que atraviesan el hueco.'],
+ si:['Tornillos solo en la zona de perfil, fuera del recorrido de la hoja.','Cassette aplomado en las dos direcciones.','Ningún tubo ni cable por el hueco del cassette.'],
+ foto:'Cassette anclado y aplomado, antes de cerrar con la placa.'},
+
+{cap:'08',t:'Puertas de vidrio, mamparas y metálicas',s:'Vidrio acústico, mamparas de oficina y puertas sectorizadas RF 60.',m:['VIDRIO','MAMPARAS','METÁLICA','SECTORIZACIÓN','CERRADURA'],
+ d:{k:'opening',kind:'glass',parts:[['perfil','Perfil de acero o aluminio','L'],['bisagras','Bisagras o pivotes','L'],['vidrio','Vidrio laminado o templado','R'],['tirador','Tirador o barra','R'],['cerradura','Cerradura o cerradura con código','R'],['suelo','Suelo y tope','L']]},
+ steps:[['Medir','Con el hueco terminado y las holguras del fabricante.'],['Estructura','Anclajes en suelo, techo y pared sólidos.'],['Vidrio','Colocación con ventosas y calzos.'],['Herrajes','Cierres, pivotes y cerraduras.'],['Revisión','Maniobra, sellos acústicos y certificados de RF.']],
+ no:['Vidrio apoyado directamente sobre el suelo.','Puerta RF sin el cierre automático.','Anclar mamparas solo a la placa.'],
+ si:['Calzos del fabricante y sellos perimetrales.','Cierrapuertas homologado en puertas sectorizadas.','Anclaje a estructura y refuerzo oculto.'],
+ foto:'Etiqueta de certificación de la puerta (RF) y el cierrapuertas instalado.'},
+
+{cap:'09',t:'Chapados y revestimientos decorativos',s:'Madera, vinilo, melamina, metacrilato, papel y molduras sobre paredes.',m:[''],
+ d:{k:'layersV',layers:[['Soporte liso','',1,'#E7E9EC',false,'Pared plana, seca y limpia'],['Adhesivo o rastreles','',0.6,'#D9D2C0',false,'Adhesivo o rastreles nivelados'],['Panel o chapado','',0.9,'#C79B66',false,'Panel con junta de dilatación'],['Remate','',0.5,'#F4F4F1',false,'Moldura o perfil de remate']]},
+ steps:[['Soporte','Plano, seco y limpio. Corregir antes de chapar.'],['Replanteo','Distribución de paneles para evitar cortes finos.'],['Fijar','Adhesivo, clip o rastrel según el material.'],['Juntas','Holgura de dilatación y tratamiento visible.'],['Remates','Perfiles, molduras y sellado en el perímetro.']],
+ no:['Chapar sobre pared húmeda.','Paneles sin holgura: se hinchan.','Cortes finos en esquinas visibles.'],
+ si:['Pared seca y a nivel.','Junta de dilatación en cada panel.','Distribución simétrica en el replanteo.'],
+ foto:'Replanteo marcado con el despiece de los paneles antes de colocar.'},
+
+{cap:'10',t:'Preparación del soporte y pintura',s:'Alisado, aguaplast, imprimación y dos manos: el acabado depende de lo de abajo.',m:['ALISADO','AGUAPLAST','PINTURA PLÁSTICA','EPOXI','TEXTURIZADA'],
+ d:{k:'layersV',layers:[['Soporte (placa o enlucido)','',1.1,'#E7E9EC',false,'Soporte limpio y seco'],['Aguaplast o pasta','1-2 mm',0.7,'#F2EEE3',false,'Pasta lijada y plana'],['Imprimación','',0.5,'#D5DEE9',false,'Imprimación selladora'],['1.ª mano de pintura','',0.7,'#F6F6F2',false,'Primera mano, diluida'],['2.ª mano de pintura','',0.7,'#FFFFFF',false,'Segunda mano, sin diluir']]},
+ steps:[['Proteger','Suelos, carpinterías y mecanismos cubiertos.'],['Reparar','Fisuras, juntas y agujeros con pasta; lijar.'],['Imprimar','Sobre placa o pasta, para igualar absorción.'],['Primera mano','Rodillo, con el material diluido según etiqueta.'],['Segunda mano','Tras secar. Revisar con luz rasante.']],
+ no:['Pintar sin imprimar sobre pasta nueva.','Una sola mano espesa para ahorrar tiempo.','Lijar sin aspirar antes de pintar.'],
+ si:['Imprimación selladora antes de la pintura.','Dos manos finas en lugar de una gruesa.','Revisión con luz rasante antes de dar por cerrado.'],
+ foto:'Pared lijada y lista para pintar, con luz rasante para ver imperfecciones.'},
+
+{cap:'10',t:'Pintura de fachada y carpintería metálica exterior',s:'Protección exterior: preparación, fijador, acabado y trabajo en altura.',m:['FACHADA','CARPINTERÍA METÁLICA'],
+ d:{k:'layersV',layers:[['Soporte de fachada','',1.2,'conc',false,'Soporte limpio y reparado'],['Fijador','',0.6,'#D5DEE9',false,'Fijador de superficie'],['Pintura de fachada','',0.9,'#E6D8C0',false,'Dos manos, según fabricante'],['Imprimación antioxidante','',0.7,'#B5603A',false,'Antioxidante en metal'],['Esmalte','',0.7,'#2F3B52',false,'Esmalte para exterior']]},
+ steps:[['Revisión','Fisuras y humedades; reparar antes de pintar.'],['Limpieza','Agua a presión, sin dañar el soporte.'],['Fijador','Para igualar la absorción y mejorar la adherencia.'],['Acabado','Dos manos con temperaturas y humedad correctas.'],['Metales','Lijar óxido, imprimar y esmaltar.']],
+ no:['Pintar con lluvia o a pleno sol.','Pintar sobre óxido sin tratar.','Pintar sin reparar fisuras.'],
+ si:['Temperatura y humedad dentro de los márgenes de la ficha.','Óxido eliminado y antioxidante antes del esmalte.','Fisuras reparadas y selladas antes de pintar.'],
+ foto:'Soporte reparado y fijado, antes de la primera mano de pintura.'},
+
+{cap:'11',t:'Rótulos, vinilos y señalética',s:'Identificación del local y señales de seguridad.',m:[''],
+ d:{k:'flow',nodes:[['Diseño','Aprobado por el cliente y por el ayuntamiento.'],['Replanteo','Altura y ejes sobre fachada o pared.'],['Preinstalación eléctrica','Para rótulos luminosos.'],['Fijación','Anclajes a soporte sólido.'],['Prueba','Encendido y revisión del anclaje.']]},
+ steps:[['Diseño y licencia','Aprobar el diseño y gestionar licencia si procede.'],['Replantear','Marcar con plantilla en la pared.'],['Preinstalar','Cable y alimentación antes del montaje.'],['Montar','Fijar con tacos según el soporte.'],['Probar','Encendido, sellado y limpieza final.']],
+ no:['Rótulo luminoso sin licencia.','Fijar a un panel que no aguanta el peso.','Instalar sin la alimentación preparada.'],
+ si:['Licencia y diseño aprobados antes de fabricar.','Anclajes dimensionados para el peso del rótulo.','Alimentación y driver accesibles.'],
+ foto:'Replanteo con plantilla sobre la fachada, antes de perforar.'},
+
+{cap:'13',t:'Luminarias, tiras LED y emergencia',s:'Iluminación general, decorativa y de emergencia.',m:[''],
+ d:{k:'flow',nodes:[['Proyecto de luz','Nivel por zona y color de luz.'],['Preinstalación','Puntos y cableado preparados.'],['Huecos y perfiles','Corte en falso techo y perfiles de LED.'],['Driver','Fuente accesible y ventilada.'],['Luminarias','Conexión y fijación.'],['Emergencia','Autónomas, con batería probada.']]},
+ steps:[['Proyecto','Definir temperatura de color y nivel de luz por zona.'],['Preinstalar','Puntos y cable en cada hueco previsto.'],['Falso techo','Huecos con la medida del fabricante.'],['Montaje','Conectar con regleta y fijar.'],['Prueba','Encender todo y comprobar emergencia.']],
+ no:['Driver LED encerrado sin ventilación ni registro.','Hueco mayor que el foco.','Luminaria de emergencia sin batería probada.'],
+ si:['Driver en un punto accesible y ventilado.','Huecos con la plantilla del fabricante.','Prueba de autonomía de emergencia.'],
+ foto:'Cableado de los puntos de luz antes de cerrar el falso techo.'},
+
+{cap:'14',t:'Cocina y electrodomésticos',s:'Muebles, encimera y electrodomésticos: tomas, medidas y orden de montaje.',m:['COCINA','HORNO','FRIGORÍFICO','MICROONDAS','VITROCERÁMICA','CAMPANA','LAVAVAJILLAS','GRIFO','FREGADERO'],
+ d:{k:'flow',nodes:[['Replanteo','Medidas con los aparatos reales.'],['Tomas','Agua, desagüe, gas y electricidad en su sitio.'],['Muebles','Nivelados y anclados.'],['Encimera','Cortes para placa y fregadero, con sellado.'],['Aparatos','Horno, placa, campana, lavavajillas.'],['Prueba','Todo funcionando antes de recibir.']]},
+ steps:[['Medidas','Revisar la ficha técnica de cada aparato.'],['Instalaciones','Tomas a la altura prevista por el fabricante.'],['Muebles','Nivelar y anclar a la pared.'],['Encimera','Cortes limpios, bordes sellados y fregadero con silicona.'],['Aparatos','Instalar y probar uno a uno.']],
+ no:['Encimera cortada sin ver la ficha de la placa.','Campana conectada sin salida de humos.','Muebles sin nivelar: las puertas no cierran.'],
+ si:['Corte de encimera con la plantilla del fabricante.','Campana con salida de humos o filtro de carbón.','Nivelación con láser antes de montar las puertas.'],
+ foto:'Tomas de agua, desagüe y electricidad marcadas con medidas sobre la pared.'},
+
+{cap:'14',t:'Mobiliario especial: bancos, cabinas y salvaescaleras',s:'Elementos a medida o de proveedor que exigen preinstalaciones.',m:['BANCOS','SALVAESCALERAS','CABINA','SILLA OPERATIVA'],
+ d:{k:'flow',nodes:[['Medidas en obra','Con el espacio acabado.'],['Preinstalación','Electricidad, datos y anclajes.'],['Fabricación','Con plazos y planos aprobados.'],['Montaje','Con proveedor y control de obra.'],['Revisión','Funcionamiento y garantía.']]},
+ steps:[['Medir','Con paredes y suelos terminados.'],['Preinstalar','Alimentación, datos y refuerzos en pared.'],['Pedir','Planos firmados por el cliente.'],['Montar','Con el proveedor en obra.'],['Entregar','Manual y garantía al cliente.']],
+ no:['Pedir con medidas de plano y descubrir diferencias en obra.','Montar sin los refuerzos en la pared.','Entregar sin manual ni garantía.'],
+ si:['Medidas tomadas en obra con el acabado final.','Refuerzos y alimentación antes de cerrar la placa.','Manual, garantía y contacto del proveedor al cliente.'],
+ foto:'Pared con refuerzos y puntos de alimentación para el mobiliario previsto.'},
+
+{cap:'15',t:'Protección contra incendios: detección y alarma',s:'Central, detectores, pulsadores y sirenas, hasta la legalización.',m:['CENTRAL','BATERÍA','DETECTOR','PULSADOR','SIRENA','INTERCONEXIÓN','REUBICACIÓN','DETENCCIÓN','COMPROBACIÓN','CERTIFICADO COMO','LEGALIZACIÓN'],
+ d:{k:'flow',nodes:[['Central','Ubicada en acceso y con batería de emergencia.'],['Lazos','Cableado resistente al fuego.'],['Detectores','Ópticos de humo, uno por zona.'],['Pulsadores','Junto a las salidas.'],['Sirenas','Óptico-acústicas, audibles en todo el local.'],['Legalización','Certificado y registro de la instalación.']]},
+ steps:[['Proyecto','Según el uso y la normativa del local.'],['Cableado','Cable apantallado y resistente al fuego.'],['Equipos','Detectores y pulsadores en la posición del proyecto.'],['Puesta en marcha','Programar la central y probar cada elemento.'],['Legalización','Certificado de empresa instaladora y registro.']],
+ no:['Detector tapado por el falso techo o por el mobiliario.','Central sin batería de reserva.','Instalar sin empresa instaladora autorizada.'],
+ si:['Detectores a la altura y distancia del proyecto.','Batería comprobada con prueba de corte.','Certificado de instalador y legalización completos.'],
+ foto:'Central instalada con el listado de zonas y la prueba de cada detector.'},
+
+{cap:'15',t:'Rociadores, extintores y evacuación',s:'Extinción automática, medios portátiles y señalización de evacuación.',m:['ROCIADOR','RED DE ROCIADORES','EXTINTOR','SEÑALETICA','MEDIOS DE ELEVACIÓN'],
+ d:{k:'flow',nodes:[['Red de rociadores','Modificación con prueba de presión.'],['Rociadores','Fijados con la altura exacta.'],['Extintores','A 15 m máximo de recorrido, a 1,70 m máx.'],['Señalización','Fotoluminiscente, visible desde cada punto.'],['Medios de elevación','Revisados y certificados.'],['Prueba final','Vaciado y llenado de la red.']]},
+ steps:[['Revisar el proyecto','Cada modificación tiene que cumplir el proyecto vigente.'],['Red','Vaciar, modificar y probar a presión.'],['Rociadores','Nuevos y alineados con el falso techo.'],['Extintores y señales','Colocar por plano y comprobar visibilidad.'],['Entrega','Certificados y revisión periódica.']],
+ no:['Pintar un rociador o taparlo con una luminaria.','Extintor tapado por un mueble.','Cambiar un rociador sin vaciar la red.'],
+ si:['Rociadores intactos, sin pintura y a la altura del proyecto.','Extintor visible, accesible y con señal.','Red vaciada y llenada con prueba de presión.'],
+ foto:'Rociadores y extintores colocados antes de cerrar y pintar.'},
+
+{cap:'16',t:'Zapatas, vigas y losas de cimentación',s:'Hormigón sobre limpieza, con armadura separada del terreno.',m:['POZOS CIMENT','ZAPATAS','LOSA CIMENTACIÓN','HORM. ARMADO CIMENT','MURO 2 CARAS'],
+ d:{k:'layersH',layers:[['Hormigón armado HA-25','',1.8,'#BDBDB6',false,'Hormigón armado HA-25, vertido y vibrado'],['Armadura inferior','',0.9,'#9AA7B8',false,'Armadura con separadores: recubrimiento mínimo'],['Hormigón de limpieza HM-20','10 cm',0.8,'conc',false,'Hormigón de limpieza de 10 cm'],['Terreno compactado','',1.5,'earth',false,'Terreno firme, sin agua y compactado']]},
+ steps:[['Excavar y compactar','Terreno firme, sin agua ni restos orgánicos.'],['Limpieza','Hormigón HM-20 de 10 cm.'],['Armar','Armadura con separadores y los solapes del proyecto.'],['Hormigonar','Vertido por tongadas y vibrado.'],['Curar','Mantener húmedo varios días, protegido de sol y viento.']],
+ no:['Armadura apoyada directamente sobre el terreno.','Hormigonar con agua en el fondo de la zanja.','Añadir agua al hormigón para que corra más.'],
+ si:['Separadores que garanticen el recubrimiento.','Fondo seco y limpio antes de verter.','Hormigón tal como llega, con probetas del control.'],
+ foto:'Armadura colocada con los separadores, antes del hormigonado.'},
+
+{cap:'16',t:'Soleras y forjados',s:'Solera sobre encachado y forjados unidireccionales, losas y mallazo.',m:['SOLERA','FORJADO UNIDIR','LOSA INCLINADA','LOSA PLANA'],
+ d:{k:'layersH',layers:[['Pavimento o acabado','',0.8,'#B9C4CE',false,'Acabado posterior'],['Solera de hormigón armado','15 cm',1.6,'#BDBDB6',false,'Solera HA-25 con mallazo 150×150×6'],['Lámina plástica','',0.4,'#6BA8D8',false,'Lámina plástica antihumedad'],['Encachado de grava','15 cm',1.3,'grav',false,'Encachado de grava 40/80, compactado'],['Terreno','',1.2,'earth',false,'Terreno compactado']]},
+ steps:[['Compactar','Terreno compactado hasta el nivel del proyecto.'],['Encachado','Grava 40/80 de 15 cm, compactada.'],['Lámina','Polietileno sin roturas, solapes de 20 cm.'],['Mallazo','En posición con calzos, sin tocar el fondo.'],['Hormigón y juntas','Vertido, reglado y juntas de retracción.']],
+ no:['Mallazo tirado en el suelo, sin calzos.','Solera sin juntas de retracción: se fisura.','Hormigón vertido sobre grava mojada y charcos.'],
+ si:['Mallazo sobre calzos, a la altura que marque el proyecto.','Juntas de retracción cortadas a tiempo.','Encachado seco, compactado y con lámina continua.'],
+ foto:'Mallazo con calzos y lámina antes de verter la solera.'},
+
+{cap:'16',t:'Pilares, acero y fábrica de ladrillo',s:'Estructura, cargaderos y cerramiento de fachada.',m:['PILAR','VIGA PLANA','ACERO','PLACA ANCLAJE','LADRILLO PERFORADO','CARGADERO HORMIGÓN'],
+ d:{k:'brick',door:true,parts:[['pilar','Pilar de hormigón o acero','L'],['anclaje','Anclaje del cerramiento al pilar','L'],['mortero','Mortero M-5 en juntas llenas','L'],['hilada','Hiladas a nivel con traba','R'],['cargadero','Cargadero de hormigón sobre el hueco','R'],['juntaSup','Junta superior elástica','R']]},
+ steps:[['Replantear','Ejes y niveles desde los pilares.'],['Anclar','Placas de anclaje y barras en pilares.'],['Levantar fábrica','Por hiladas niveladas, con mortero M-5.'],['Huecos','Cargaderos con apoyo mínimo a cada lado.'],['Cerrar','Junta elástica en el encuentro con el forjado.']],
+ no:['Pilar sin recubrimiento suficiente.','Cargadero con apoyos justos.','Fábrica sin juntas de movimiento en tramos largos.'],
+ si:['Recubrimientos medidos y registrados.','Apoyos de 20 cm a cada lado del cargadero.','Juntas de movimiento cada 12 m aprox. en tramos largos.'],
+ foto:'Estructura con armaduras y anclajes antes de hormigonar o cerrar.'},
+
+{cap:'16',t:'Movimiento de tierras: desbroce, pozos y zanjas',s:'Preparar el terreno y excavar con seguridad y control de niveles.',m:['DESBROCE','EXCAVACIÓN'],
+ d:{k:'flow',nodes:[['Replanteo','Ejes y cotas marcados con topografía.'],['Desbroce','Retirada de vegetación y capa vegetal.'],['Excavación','Pozos y zanjas por medios mecánicos.',true],['Entibación','Si hay riesgo de desprendimiento.',true],['Refino','Fondo limpio, a cota y firme.'],['Control','Visto bueno del técnico antes de hormigonar.']]},
+ steps:[['Replantear','Referencias fijas fuera de la excavación.'],['Servicios afectados','Localizar tuberías y cables antes de excavar.'],['Excavar','Por tongadas con talud o entibación.'],['Refinar','Fondo a cota, sin material suelto.'],['Verificar','Terreno firme según el estudio geotécnico.']],
+ no:['Excavar sin localizar servicios enterrados.','Zanja profunda sin talud ni entibación.','Hormigonar sobre fondo blando o con agua.'],
+ si:['Servicios localizados y señalizados.','Talud o entibación según la profundidad.','Fondo firme comprobado y aprobado por el técnico.'],
+ foto:'Fondo de la excavación con una cinta métrica y las cotas.'}
+);
+document.getElementById("nF").textContent=FICHAS.length;init();
+</script></body></html>
