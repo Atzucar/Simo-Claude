@@ -53,7 +53,7 @@ function sLayersH(d){
   L.forEach((a,i)=>{
     const m=box(W,hs[i],D,pickFill(a[3]||'#DDD'),0,pos[i],0);
     if(a[4])m.add(box(W*1.012,hs[i]*1.02,D*1.012,{p:'demo'},0,0,0,{op:.55,ec:0xD32F2F,eo:1}));
-    g.add(m);ex.push({o:m,dir:V3(0,(n-1-i)*1.05,0)});
+    g.add(m);ex.push({o:m,dir:V3(0,(n-1-i)*2.6,0)});
     const sx=i%2===0?.3:-.3;an.push(()=>V3(m.position.x+W*sx,m.position.y,D/2));
   });
   if(d.perim)[-1,1].forEach(s=>g.add(box(.3,y,D,{c:'#F2D275'},s*(W/2+.2),y/2,0)));
@@ -66,7 +66,7 @@ function sLayersV(d){
     const cx=x+ws[i]/2;x+=ws[i];
     const m=box(ws[i],H,D,pickFill(a[3]||'#DDD'),cx,H/2,0);
     if(a[4])m.add(box(ws[i]*1.01,H*1.01,D*1.01,{p:'demo'},0,0,0,{op:.7,ec:0xD32F2F,eo:1}));
-    g.add(m);ex.push({o:m,dir:V3((i-(n-1)/2)*.8,0,0)});
+    g.add(m);ex.push({o:m,dir:V3((i-(n-1)/2)*2.4,0,0)});
     an.push(()=>V3(m.position.x,m.position.y+((i%3)-1)*.7,D/2));
   });
   return{g,an,ex,ex0:1};
@@ -102,7 +102,7 @@ function sStud(d){
   panels(g,xp0,xp1,[xp0+12],y0,y1,1.45,.5,pl,hole,d.demo,front);
   if(d.doble)panels(g,xp0+4,xp1,[xp0+10],y0,y1,1.95,.5,'#DCDFE4',hole,false,outer);
   panels(g,xp0,xp1,[xp0+6],y0,y1,-1.45,.5,pl,hole,false,back);
-  front.forEach(m=>ex.push({o:m,dir:V3(0,0,.9)}));outer.forEach(m=>ex.push({o:m,dir:V3(0,0,1.8)}));back.forEach(m=>ex.push({o:m,dir:V3(0,0,-.9)}));
+  front.forEach(m=>ex.push({o:m,dir:V3(0,0,3.6)}));outer.forEach(m=>ex.push({o:m,dir:V3(0,0,7.2)}));back.forEach(m=>ex.push({o:m,dir:V3(0,0,-3.6)}));
   // tornillos
   const sg=new THREE.SphereGeometry(.17,8,6),sm=new THREE.MeshLambertMaterial({color:0x4A5568});
   const scX=door?[xp0,x0+24,x0+31,xp1]:[xp0,x0+4*sp,x0+5*sp,xp1];
@@ -198,17 +198,18 @@ function sFlow(d){
   return{g,an,ex:[],ex0:0,pitch:.5};
 }
 function buildScene(d){
+  if(d.k==='real'){const s=REAL[d.build](d);if(!s.an)s.an=d.keys.map(k=>s.anMap[k]||(()=>V3()));return s}
   const s={layersH:sLayersH,layersV:sLayersV,stud:sStud,brick:sBrick,opening:sOpening,flow:sFlow}[d.k](d);
   if(!s.an){const keys=(d.parts||[]).map(p=>p[0]);s.an=keys.map(k=>s.anMap[k]||(()=>V3()))}
   return s;
 }
 function labelsOf(d){
-  if(d.k==='flow')return d.nodes.map(n=>({t:n[0],s:n[1]||''}));
+  if(d.k==='flow'||d.k==='real')return d.nodes.map(n=>({t:n[0],s:n[1]||''}));
   if(d.layers)return d.layers.map(a=>({t:(a[5]||a[0])+(a[1]&&a[1].length<12&&!/conserva/i.test(a[1])?' · '+a[1]:''),s:''}));
   return d.parts.map(p=>({t:p[1],s:'',side:p[2]}));
 }
 function drawBlock(f,i){
-  const L=labelsOf(f.d),fl=f.d.k==='flow';
+  const L=labelsOf(f.d),fl=f.d.k==='flow'||f.d.k==='real';
   return `<div class="draw"><div class="v3d" id="v${i}" tabindex="0" role="group" aria-label="Modelo 3D: ${esc(f.t)}. Arrastra para girar.">
     <div class="fb">${DRAW[f.d.k](f.d)}</div><canvas hidden></canvas><svg class="ov" hidden></svg>
     <div class="ctl" hidden><button type="button" data-a="spin" aria-pressed="true">Girar</button>${f.d.k==='layersH'||f.d.k==='layersV'||f.d.k==='stud'?'<button type="button" data-a="ex" aria-pressed="false">Despiece</button>':''}<button type="button" data-a="reset">Vista inicial</button></div>

@@ -166,10 +166,10 @@ function sJuntas(){
   // montantes bajo
   const stuA=box(3.5,.5,40,STU,0,-.3,0);const stu2=box(3.5,.5,40,STU,-30,-.3,0);const stu3=box(3.5,.5,40,STU,30,-.3,0);
   g.add(stuA,stu2,stu3);
-  const cinta=box(11,.12,40,'#F5F0DA',0,t-rec+.06,0,{eo:.3});g.add(cinta);ex.push({o:cinta,dir:V3(0,6,0)});
-  const p1=box(16,.2,40,'#D6D2C4',0,t-rec+.24,0,{eo:.3});g.add(p1);ex.push({o:p1,dir:V3(0,11,0)});
-  const p2=box(24,.14,40,'#E3DFD2',0,t-rec+.41,0,{eo:.3});g.add(p2);ex.push({o:p2,dir:V3(0,16,0)});
-  const p3=box(34,.1,40,'#F1EEE6',0,t-rec+.54,0,{eo:.3});g.add(p3);ex.push({o:p3,dir:V3(0,21,0)});
+  const cinta=box(11,.12,40,'#F5F0DA',0,t-rec+.06,0,{eo:.3});g.add(cinta);ex.push({o:cinta,dir:V3(0,14,0)});
+  const p1=box(16,.2,40,'#D6D2C4',0,t-rec+.24,0,{eo:.3});g.add(p1);ex.push({o:p1,dir:V3(0,28,0)});
+  const p2=box(24,.14,40,'#E3DFD2',0,t-rec+.41,0,{eo:.3});g.add(p2);ex.push({o:p2,dir:V3(0,42,0)});
+  const p3=box(34,.1,40,'#F1EEE6',0,t-rec+.54,0,{eo:.3});g.add(p3);ex.push({o:p3,dir:V3(0,56,0)});
   const sg=new THREE.CylinderGeometry(.55,.55,.5,10);[[-14],[14]].forEach(([x])=>{[-12,0,12].forEach(z=>{const s=new THREE.Mesh(sg,MATL(0x39424F));s.position.set(x,t-.05,z);g.add(s)})});
   g.scale.set(1.3,1.3,1.3);
   an.ba=()=>V3(-9,t*1.3-.6,12*1.3);an.cinta=()=>V3(0,(t-rec+.1)*1.3+ex[0].dir.y*0,-14*1.3);an.p1=()=>V3(3*1.3,(t-rec+.24)*1.3,-15*1.3);an.p2=()=>V3(8*1.3,(t-rec+.41)*1.3,-8*1.3);an.p3=()=>V3(14*1.3,(t-rec+.54)*1.3,-2*1.3);an.tornillo=()=>V3(-14*1.3,t*1.3,0);an.montante=()=>V3(-30*1.3,-.3*1.3,16*1.3);an.junta=()=>V3(0,(t-rec)*1.3,-19*1.3);
@@ -216,7 +216,7 @@ function sPasos(){
 }
 /* ---- anatomía del tabique (despiece) ---- */
 function sAnatomia(){
-  return studWall({len:120,h:60,sp:60,caras:1,step:false,banda:true,lana:true,exp:true,gap:true,exs:2.6});
+  return studWall({len:120,h:60,sp:60,caras:1,step:false,banda:true,lana:true,exp:true,gap:true,exs:5});
 }
 /* ---- falso techo ---- */
 function sFalsoTecho(){
@@ -228,13 +228,13 @@ function sFalsoTecho(){
   [-40,40].forEach(z=>g.add(box(170,2.7,6,CAN,0,15.5,z,{eo:.5})));
   // secundarios (maestras) cada 50 cm perpendiculares... aquí a lo largo X
   for(let x=-75;x<=75;x+=50)g.add(box(3,2.7,150,STU,x,12.2,0,{eo:.5}));
-  const pl=box(170,1.25,140,PLC,0,9.9,0);pl.material.forEach(m=>{m.transparent=true;m.opacity=.82});g.add(pl);ex.push({o:pl,dir:V3(0,-22,0)});
+  const pl=box(170,1.25,140,PLC,0,9.9,0);pl.material.forEach(m=>{m.transparent=true;m.opacity=.82});g.add(pl);ex.push({o:pl,dir:V3(0,-48,0)});
   // perfil angular perimetral
   g.add(box(170,3,.4,CAN,0,6,-72,{eo:.5}));
   const sg=new THREE.CylinderGeometry(.5,.5,.4,10);
   for(let x=-75;x<=75;x+=50)for(let z=-60;z<=60;z+=25){const s=new THREE.Mesh(sg,MATL(0x39424F));s.position.set(x,9.2,z);g.add(s)}
   an.forjado=()=>V3(60,66,60);an.varilla=()=>V3(60,38,40);an.horquilla=()=>V3(0,22,40);an.primario=()=>V3(-50,15.5,40);an.maestra=()=>V3(25,12.2,-20);an.placa=()=>V3(-30,9.3,60);an.tornillo=()=>V3(-25,9.2,35);an.angular=()=>V3(-40,6,-72);
-  return{g,anMap:an,ex,ex0:0};
+  return{g,anMap:an,ex,ex0:1};
 }
 /* ---- trasdosado ---- */
 function sTrasdosado(){
@@ -245,7 +245,7 @@ function sTrasdosado(){
   g.add(box(150,.45,5,CAN,0,.22,-17));
   [-60,0,60].forEach(x=>{g.add(box(.45,58,4.5,STU,x,29.5,-17,{eo:.4}));[1,-1].forEach(s=>g.add(box(3.5,58,.45,STU,x+2,29.5,-17+s*2.0,{eo:.4})))});
   [-30,30].forEach(x=>g.add(box(56,58,3.6,'wool',x,29.5,-17,{eo:.2})));
-  const pl=box(150,59,1.25,PLC,0,29.8,-17+2.4+.65);g.add(pl);ex.push({o:pl,dir:V3(0,0,12)});
+  const pl=box(150,59,1.25,PLC,0,29.8,-17+2.4+.65);g.add(pl);ex.push({o:pl,dir:V3(0,0,30)});
   // pelladas (trasdosado directo)
   g.add(box(150,.45,5,CAN,0,.22,40,{noedge:true,op:0}));
   an.muro=()=>V3(50,45,-24);an.canal=()=>V3(-30,.3,-14.5);an.montante=()=>V3(0,50,-17);an.lana=()=>V3(30,25,-15);an.placa=()=>V3(-40,30,-12.5);an.camara=()=>V3(-30,59,-17);
