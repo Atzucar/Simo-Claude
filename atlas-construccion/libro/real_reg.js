@@ -1,0 +1,1 @@
+const REAL={rFontaneria,rSanitarios,rSplits,rGas,rRadiadores,rDesmontaje,rAnulacion,rDescombro,rAndamio,rTelecom,rRotulos,rLuminarias,rCocina,rMobiliario,rDeteccion,rRociadores,rTierras,sCuadro,sEstancia,fInstalacionBano,fTermo,fTuberias,fDesagues,fGabinete,fPrueba,cSistemas,cSplit,cMulti,cCassette,cConductos,cFrigorifica,cCondensados,cVentilacion};

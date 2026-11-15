@@ -1,5 +1,4 @@
 /* ===== Fichas de proceso: escenas con los objetos reales ===== */
-const REAL={rFontaneria,rSanitarios,rSplits,rGas,rRadiadores,rDesmontaje,rAnulacion,rDescombro,rAndamio,rTelecom,rRotulos,rLuminarias,rCocina,rMobiliario,rDeteccion,rRociadores,rTierras,sCuadro,sEstancia};
 const RM={
 'Desmontaje de carpintería, mobiliario y elementos':{build:'rDesmontaje',nodes:[['Lista de inventario','Qué se reutiliza y qué se tira.'],['Film de protección','Suelo y encuentros cubiertos.'],['Puerta descolgada','Se sueltan los herrajes y se baja entre dos.'],['Etiqueta','Estancia y posición en cada pieza.'],['Bolsa de herrajes','Bisagras y tornillos, junto a su pieza.'],['Carretilla','Salida por la ruta marcada, sin arrastrar.']]},
 'Anulación de instalaciones antes de demoler':{build:'rAnulacion',nodes:[['Cuadro cortado y con candado','Nadie puede reconectar mientras se trabaja.'],['Comprobador','Se verifica que no hay tensión.'],['Punto de agua con tapón','Cada punto que desaparece, taponado.'],['Cables con capuchón','Aislados dentro de una caja registrable.'],['Equipo desmontado','Gas recuperado por empresa habilitada.']]},

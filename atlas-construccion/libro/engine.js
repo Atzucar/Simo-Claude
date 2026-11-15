@@ -203,7 +203,7 @@ function dFlow(d){
   });
   return svgWrap(g);
 }
-const DRAW={layersH:dLayersH,layersV:dLayersV,stud:dStud,brick:dBrick,opening:dOpening,flow:dFlow};
+const DRAW={layersH:dLayersH,layersV:dLayersV,stud:dStud,brick:dBrick,opening:dOpening,flow:dFlow,real:dFlow};
 
 /* ===== Interfaz ===== */
 const CAPS={'00':'Honorarios de obra','01':'Demoliciones','02':'Albañilería','03':'Solados y alicatados','04':'Fontanería','05':'Climatización y gas','06':'Electricidad','07':'Carpintería exterior','08':'Carpintería interior','09':'Chapados','10':'Pintura','11':'Cartelería','12':'Sanitarios y grifería','13':'Iluminación','14':'Mobiliario de obra','15':'Protección contra incendios','16':'Cimentación y estructura'};

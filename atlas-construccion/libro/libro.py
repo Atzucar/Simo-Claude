@@ -8,8 +8,8 @@ def table(head,rows,cls=''):
     return f'<table class="{cls}"><thead><tr>'+''.join(f'<th>{h}</th>' for h in head)+'</tr></thead><tbody>'+''.join('<tr>'+''.join(f'<td>{c}</td>' for c in r)+'</tr>' for r in rows)+'</tbody></table>'
 
 PAGES=[]
-def page(parte,cap,titulo,sub,fig,intro=None,pasos=None,claves=None,errores=None,extra=None,figcap=None,figs=None,notas=None):
-    PAGES.append(dict(parte=parte,cap=cap,titulo=titulo,sub=sub,fig=fig,intro=intro,pasos=pasos,claves=claves,errores=errores,extra=extra,figcap=figcap,figs=figs,notas=notas))
+def page(parte,cap,titulo,sub,fig,intro=None,pasos=None,claves=None,errores=None,extra=None,figcap=None,figs=None,notas=None,si=None,foto=None,partidas=None):
+    PAGES.append(dict(parte=parte,cap=cap,titulo=titulo,sub=sub,fig=fig,intro=intro,pasos=pasos,claves=claves,errores=errores,extra=extra,figcap=figcap,figs=figs,notas=notas,si=si,foto=foto,partidas=partidas))
 
 P1='1 · Tabiquería de pladur'
 P2='2 · Instalación eléctrica de vivienda'
@@ -130,7 +130,7 @@ page(P2,'2.2','Cables y tubos','Qué cable se usa, de qué color y por qué tubo
 
 page(P2,'2.3','Recorrido de la instalación en una habitación','Cajas de derivación, bajantes y tubos de las tomas.','estancia',
  pasos=['<b>Replantea los puntos</b> con el cliente: luz, interruptores y tomas, en su sitio real.','<b>Decide dónde va la caja de derivación</b> y que sea registrable.','<b>Haz las rozas</b> en vertical y horizontal. Nunca en diagonal.','<b>Coloca los tubos</b> corrugados, uno por circuito, con curvas amplias y sujetos.','<b>Pasa los cables</b> con guía cuando el yeso o el mortero estén fraguados.','<b>Marca y fotografía</b> el recorrido antes de cerrar.'],
- claves=[('Rozas','Verticales y horizontales, nunca en diagonal'),('Profundidad','La justa para el tubo; no debilitar el muro'),('Separación','Unos 3-5 cm con tuberías de agua y gas'),('Circuitos','Un tubo por circuito, sin mezclar')],
+ claves=[('Rozas','Verticales y horizontales, nunca en diagonal'),('Profundidad','La justa para el tubo; no debilitar el muro'),('Separación','Respeta las distancias del REBT y del CTE con agua y gas'),('Circuitos','Un tubo por circuito, sin mezclar')],
  errores=['Roza diagonal: debilita el tabique y no se sabe luego por dónde va.','Tubo con codos cerrados: el cable no pasa.','Cerrar sin foto: no se sabrá por dónde van los tubos.'],
  figcap='Ejemplo: un tubo por el techo hasta la lámpara, una bajante al interruptor y otro tubo a las tomas.')
 
@@ -180,8 +180,20 @@ page(P2,'2.10','Alturas y distancias de los mecanismos','Dónde se colocan los i
  errores=['Interruptor detrás de la hoja de la puerta.','Enchufes demasiado bajos para una persona mayor.','Interruptor y enchufe desalineados en la misma pared.'],
  figcap='Alzado de una pared de cocina con puerta, interruptor, enchufe y enchufe sobre encimera.')
 
+
+import json
+from topics import TOPICS
+PARTE={'3':'3 · Fontanería y saneamiento','4':'4 · Climatización'}
+for tp in TOPICS:
+    page(PARTE[tp['parte']],'',tp['titulo'],tp['sub'],tp['fig'],intro=tp.get('intro'),pasos=tp['pasos'],claves=tp['claves'],errores=tp['no'],extra=tp.get('extra'),notas=tp.get('notas'),figcap=tp.get('figcap'),si=tp['si'],foto=tp['foto'])
+CAPPART={'01':'5 · Demoliciones y trabajos previos','02':'6 · Albañilería y cubiertas','03':'7 · Solados, alicatados y rodapiés','07':'8 · Carpintería exterior e interior','08':'8 · Carpintería exterior e interior','09':'9 · Chapados y pintura','10':'9 · Chapados y pintura','11':'10 · Rótulos, iluminación y mobiliario','13':'10 · Rótulos, iluminación y mobiliario','14':'10 · Rótulos, iluminación y mobiliario','15':'11 · Protección contra incendios','16':'12 · Cimentación, estructura y movimiento de tierras','05':PARTE['4'],'06':P2}
+import re as _re
+for a in json.load(open('autofichas.json',encoding='utf-8')):
+    pasos=[f"<b>{esc(s[0])}</b>. {esc(s[1])}" for s in a['steps']]
+    page(CAPPART[a['cap']],'',a['t'],a['s'],'a%d'%a['i'],pasos=pasos,errores=a['no'],si=a['si'],foto=a['foto'],partidas=a['partidas'])
+
 # ---------------- LISTAS ----------------
-LISTAS=dict(tab=['Replanteo hecho con láser y verificado.','Banda acústica bajo canales y montantes de arranque.','Canales fijadas cada 60 cm, sin huecos.','Montantes aplomados, cada 60 cm (o menos).','Jambas dobles y dintel en los huecos.','Instalaciones con casquillo y cajas desfasadas.','Lana colocada sin huecos ni compresión.','Foto de la cámara abierta, antes de cerrar.','Placas separadas ≈ 1 cm del suelo y del techo.','Tornillos enrasados, juntas desplazadas.','Juntas tratadas y lijadas al nivel pedido.','Perímetro sellado.'],
+LISTAS=dict(font=['Llave general y llaves de corte accesibles y señalizadas.','Fría por debajo de la caliente, separadas ≥ 4 cm, caliente aislada.','Un tubo por aparato desde el colector, en vaina.','Termo con antirretorno, grupo de seguridad y descarga visible.','Desagües con pendiente del 2 al 4 % y sifón accesible.','Bajante ventilada hasta cubierta y registro al pie.','Prueba de presión realizada y fotografiada.','Lavamanos clínico con grifo sin contacto manual.'],clima=['Carga térmica calculada y potencia elegida.','Unidad exterior con espacio libre y soportes antivibratorios.','Pasamuros con pendiente hacia fuera y sellado.','Líneas con aislante continuo en cada tubo por separado.','Uniones abocardadas con par de apriete y vacío realizado.','Desagüe de condensados con pendiente y sifón, probado con agua.','Cassette colgado del forjado; conductos con flexibles estirados.','Líneas etiquetadas por estancia en los multisplit.'],tab=['Replanteo hecho con láser y verificado.','Banda acústica bajo canales y montantes de arranque.','Canales fijadas cada 60 cm, sin huecos.','Montantes aplomados, cada 60 cm (o menos).','Jambas dobles y dintel en los huecos.','Instalaciones con casquillo y cajas desfasadas.','Lana colocada sin huecos ni compresión.','Foto de la cámara abierta, antes de cerrar.','Placas separadas ≈ 1 cm del suelo y del techo.','Tornillos enrasados, juntas desplazadas.','Juntas tratadas y lijadas al nivel pedido.','Perímetro sellado.'],
  ele=['Línea y circuitos etiquetados en el cuadro.','Secciones y tubos según la tabla de circuitos.','Rozas verticales y horizontales, sin diagonales.','Cajas niveladas y a su altura.','Empalmes solo en cajas de derivación, con regleta.','Colores correctos: azul neutro, verde-amarillo tierra.','Fase por el interruptor, nunca el neutro.','Foto de los tubos y cajas antes de cerrar.','Aislamiento medido (500 V, ≥ 0,5 MΩ) y continuidad de tierra.','Diferenciales disparados con el pulsador de prueba.','Boletín (certificado de instalación) firmado por instalador autorizado.','Esquema unifilar entregado al cliente.'])
 
 HTML_HEAD='''<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Atlas técnico de obra</title>
@@ -212,6 +224,8 @@ ol li{counter-increment:n;position:relative;padding-left:7mm;margin-bottom:1.2mm
 ol li::before{content:counter(n);position:absolute;left:0;top:.2mm;width:5mm;height:5mm;border-radius:50%;background:#F26A1B;color:#fff;font:800 9pt/5mm 'Barlow Condensed',Arial;text-align:center}
 ul{margin:0;padding:0;list-style:none}
 ul li{position:relative;padding-left:5mm;margin-bottom:1.1mm}
+ul.ok li::before{content:"✓";position:absolute;left:0;color:#1B8F50;font-weight:800}
+.chips{display:flex;flex-wrap:wrap;gap:1.2mm}.chips span{font-size:7.6pt;background:#E3E9F3;padding:.6mm 1.8mm;border-radius:1mm}.chips span b{color:#F26A1B;font:800 8pt 'Barlow Condensed',Arial;margin-right:1mm}
 ul.err li::before{content:"✕";position:absolute;left:0;color:#D32F2F;font-weight:800}
 ul.k li::before{content:"";position:absolute;left:0;top:2mm;width:2.2mm;height:2.2mm;background:#F26A1B}
 table.t{width:100%;border-collapse:collapse;font-size:8.9pt;margin-top:1mm}
@@ -233,14 +247,15 @@ table.t td{padding:1.2mm 2mm;border-bottom:1px solid #D3DAE6;vertical-align:top}
 .toc{padding:16mm 16mm 0}
 .toc h1{font-size:30pt;margin-bottom:6mm}
 .toc h2{font:800 15pt 'Barlow Condensed',Arial;text-transform:uppercase;color:#F26A1B;margin:5mm 0 2mm}
-.toc .r{display:grid;grid-template-columns:12mm 1fr 10mm;border-bottom:1px dotted #9AA7BD;padding:1.1mm 0;font-size:10pt}
+.toc{padding:12mm 12mm 0}.toc h1{font-size:24pt;margin-bottom:3mm}.toc .r{display:grid;grid-template-columns:8mm 1fr 5mm;border-bottom:1px dotted #9AA7BD;padding:.3mm 0;font-size:6.9pt;line-height:1.2}.toc .r b{font-size:8pt}.toc h2{font-size:9.5pt;margin:2.4mm 0 .6mm}
 .toc .r b{font:800 12pt 'Barlow Condensed',Arial;color:#0E2A57}
 .chk{display:grid;grid-template-columns:1fr 1fr;gap:0 8mm}
 .chk li{padding-left:6.5mm;margin-bottom:1.8mm;font-size:9pt}
 .chk li::before{content:"";position:absolute;left:0;top:.7mm;width:3.6mm;height:3.6mm;border:1.4px solid #0E2A57;background:#fff}
 </style></head><body>'''
-def pagehtml(p,i,total):
-    h=f'<section class="pg"><div class="hd"><span>Atlas técnico de obra</span><span><i>{esc(p["parte"])}</i></span></div><div class="in">'
+def pagehtml(p,i,total,mode='F'):
+    if mode=='B': return pageB(p,i)
+    h=f'<section class="pg" data-t="{esc(p["titulo"])}"><div class="hd"><span>Atlas técnico de obra</span><span><i>{esc(p["parte"])}</i></span></div><div class="in">'
     h+=f'<div class="ttl"><div class="num">{p["cap"]}</div><h1>{esc(p["titulo"])}</h1><div class="sub">{esc(p["sub"])}</div></div>'
     if p['fig']=='sec3':
         for f,c in [('sec11','1+1: una placa por cara'),('sec22','2+2: dos placas por cara'),('sec22m','2+2 con membrana')]:
@@ -251,12 +266,18 @@ def pagehtml(p,i,total):
         h+=f'<div class="fig"><img src="{FIG}{p["fig"]}.jpg"></div>'
         if p.get('figcap'):h+=f'<div class="cap">{esc(p["figcap"])}</div>'
     if p['intro']:h+=f'<div style="margin-top:2.6mm">{p["intro"]}</div>'
+    if mode=='A':
+        left='<h3>Cómo se hace</h3>'+ol(p['pasos']);right='<h3>Datos clave</h3>'+''.join(f'<div class="kv"><b>{esc(k)}</b><span>{esc(v)}</span></div>' for k,v in (p['claves'] or []))
+        h+=f'<div class="cols"><div>{left}</div><div>{right}</div></div>'
+        h+=f'</div><div class="ft"><span>Guía de buena práctica. Prevalecen el proyecto, la normativa y la ficha del fabricante.</span><span><b>{i}</b></span></div></section>'
+        return h
     if p['pasos'] or p['claves'] or p['errores']:
         left=''
         right=''
         if p['pasos']:left+='<h3>Cómo se hace</h3>'+ol(p['pasos'])
         if p['claves']:right+='<h3>Datos clave</h3>'+''.join(f'<div class="kv"><b>{esc(k)}</b><span>{esc(v)}</span></div>' for k,v in p['claves'])
         if p['errores']:right+='<h3 style="margin-top:3mm;color:#D32F2F">Errores frecuentes</h3>'+ul(p['errores'],'err')
+        if p.get('si'):right+='<h3 style="margin-top:3mm;color:#1B8F50">Cómo va</h3>'+ul(p['si'],'ok')
         if p['pasos']: h+=f'<div class="cols"><div>{left}</div><div>{right}</div></div>'
         else: h+=f'<div class="cols"><div>{right}</div><div></div></div>' if not p['extra'] else ''
     if p['extra']:h+=f'<div style="margin-top:2.6mm">{p["extra"]}</div>'
@@ -265,13 +286,30 @@ def pagehtml(p,i,total):
     if p['fig']=='cmp':
         h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;margin-top:4mm">'+''.join(f'<div><div class="fig"><img src="{FIG}{f}.jpg"></div><div class="cap"><b>{c}</b></div></div>' for f,c in [('p11','1+1'),('p22','2+2'),('p22m','2+2 con membrana')])+'</div>'
     if p['notas']:h+=f'<div class="note">{p["notas"]}</div>'
+    if p.get('foto') or p.get('partidas'):
+        h+='<div class="cols" style="margin-top:3mm"><div>'+(('<h3>Foto antes de tapar</h3><div style="font-size:9.2pt">'+esc(p['foto'])+'</div>') if p.get('foto') else '')+'</div><div>'+((f'<h3>En tu presupuesto ({len(p["partidas"])} partidas)</h3><div class="chips">'+''.join('<span>'+esc(x.capitalize())+'</span>' for x in p['partidas'][:14])+('<span>…</span>' if len(p['partidas'])>14 else '')+'</div>') if p.get('partidas') else '')+'</div></div>'
     h+=f'</div><div class="ft"><span>Guía de buena práctica. Prevalecen el proyecto, el CTE, el REBT y la ficha del fabricante.</span><span><b>{i}</b></span></div></section>'
     return h
 
+def pageB(p,i):
+    h=f'<section class="pg"><div class="hd"><span>Atlas técnico de obra</span><span><i>{esc(p["parte"])}</i></span></div><div class="in">'
+    h+=f'<div class="ttl"><div class="num">{p["cap"]}</div><h1>{esc(p["titulo"])}</h1><div class="sub">Datos, comprobaciones y partidas del presupuesto.</div></div>'
+    if p.get('extra'):h+=f'<div style="margin-top:1mm">{p["extra"]}</div>'
+    left=('<h3 style="color:#D32F2F">Errores frecuentes</h3>'+ul(p['errores'],'err')) if p.get('errores') else ''
+    right=('<h3 style="color:#1B8F50">Cómo va</h3>'+ul(p['si'],'ok')) if p.get('si') else ''
+    h+=f'<div class="cols" style="margin-top:4mm"><div>{left}</div><div>{right}</div></div>'
+    if p.get('notas'):h+=f'<div class="note">{p["notas"]}</div>'
+    if p.get('foto') or p.get('partidas'):
+        h+='<div class="cols" style="margin-top:4mm"><div>'+(('<h3>Foto antes de tapar</h3><div style="font-size:9.6pt">'+esc(p['foto'])+'</div>') if p.get('foto') else '')+'</div><div>'+((f'<h3>En tu presupuesto ({len(p["partidas"])} partidas)</h3><div class="chips">'+''.join('<span>'+esc(x.capitalize())+'</span>' for x in p['partidas'][:20])+'</div>') if p.get('partidas') else '')+'</div></div>'
+    h+=f'</div><div class="ft"><span>Guía de buena práctica.</span><span><b>{i}</b></span></div></section>'
+    return h
+import os
+SPLIT=set(json.load(open('overflow.json',encoding='utf-8'))) if os.path.exists('overflow.json') else set()
 def build():
     cnt={}
+    PAGES.sort(key=lambda p:int(p['parte'].split(' ·')[0]))
     for p in PAGES:
-        k=p['parte'][0];cnt[k]=cnt.get(k,0)+1;p['cap']=k+'.'+str(cnt[k])
+        k=p['parte'].split(' ·')[0];cnt[k]=cnt.get(k,0)+1;p['cap']=k+'.'+str(cnt[k])
     total=len(PAGES)+4
     h=HTML_HEAD
     # portada
@@ -279,23 +317,31 @@ def build():
     h+=f'<div class="imgs"><img src="{FIG}p22m.jpg"></div></section>'
     # indice
     h+='<section class="pg"><div class="hd"><span>Atlas técnico de obra</span><span><i>Índice</i></span></div><div class="toc"><h1>Contenido</h1>'
-    n=3;cur=None
+    n=3;cur=None;items=[]
+    h+='<div style="column-count:3;column-gap:6mm">'
     for p in PAGES:
-        if p['parte']!=cur:h+=f'<h2>{esc(p["parte"])}</h2>';cur=p['parte']
-        h+=f'<div class="r"><b>{p["cap"]}</b><span>{esc(p["titulo"])}</span><span style="text-align:right">{n}</span></div>';n+=1
-    h+=f'<h2>Listas y normativa</h2><div class="r"><b>3.1</b><span>Listas de comprobación</span><span style="text-align:right">{n}</span></div><div class="r"><b>3.2</b><span>Normativa de referencia</span><span style="text-align:right">{n+1}</span></div>'
+        split=p['titulo'] in SPLIT and p.get('pasos')
+        if p['parte']!=cur:h+=f'<h2 style="break-after:avoid">{esc(p["parte"])}</h2>';cur=p['parte']
+        h+=f'<div class="r" style="break-inside:avoid"><b>{p["cap"]}</b><span>{esc(p["titulo"])}</span><span style="text-align:right">{n}</span></div>'
+        items.append((p,'A' if split else 'F',n));n+=1
+        if split:items.append((p,'B',n));n+=1
+    h+='</div>'
+    h+=f'<h2 style="margin-top:6mm">Anexos</h2><div class="r"><b>A.1</b><span>Listas de comprobación</span><span style="text-align:right">{n}</span></div><div class="r"><b>A.2</b><span>Normativa de referencia</span><span style="text-align:right">{n+1}</span></div>'
     h+='</div></section>'
-    for i,p in enumerate(PAGES):h+=pagehtml(p,i+3,total)
+    for (p,mode,pg) in items:h+=pagehtml(p,pg,total,mode)
+    pass
     # listas
-    k=len(PAGES)+3
-    h+=f'<section class="pg"><div class="hd"><span>Atlas técnico de obra</span><span><i>3 · Listas y normativa</i></span></div><div class="in"><div class="ttl"><div class="num">3.1</div><h1>Listas de comprobación</h1><div class="sub">Para repasar antes de cerrar y antes de entregar.</div></div>'
+    k=n
+    h+=f'<section class="pg"><div class="hd"><span>Atlas técnico de obra</span><span><i>Anexos</i></span></div><div class="in"><div class="ttl"><div class="num">A.1</div><h1>Listas de comprobación</h1><div class="sub">Para repasar antes de cerrar y antes de entregar.</div></div>'
     h+='<div class="sec">Tabique de pladur</div><ul class="chk">'+''.join(f'<li>{esc(x)}</li>' for x in LISTAS['tab'])+'</ul>'
     h+='<div class="sec">Instalación eléctrica</div><ul class="chk">'+''.join(f'<li>{esc(x)}</li>' for x in LISTAS['ele'])+'</ul>'
+    h+='<div class="sec">Fontanería y saneamiento</div><ul class="chk">'+''.join(f'<li>{esc(x)}</li>' for x in LISTAS['font'])+'</ul>'
+    h+='<div class="sec">Climatización</div><ul class="chk">'+''.join(f'<li>{esc(x)}</li>' for x in LISTAS['clima'])+'</ul>'
     h+=f'</div><div class="ft"><span>Guía de buena práctica.</span><span><b>{k}</b></span></div></section>'
-    h+=f'<section class="pg"><div class="hd"><span>Atlas técnico de obra</span><span><i>3 · Listas y normativa</i></span></div><div class="in"><div class="ttl"><div class="num">3.2</div><h1>Normativa de referencia</h1><div class="sub">Dónde está lo que aquí se resume.</div></div>'
-    h+=table(['Tema','Documento'],[['Aislamiento acústico','CTE DB-HR (Protección frente al ruido)'],['Resistencia al fuego','CTE DB-SI (Seguridad en caso de incendio)'],['Accesibilidad de mecanismos','CTE DB-SUA'],['Instalación eléctrica en baja tensión','REBT (Real Decreto 842/2002) e instrucciones técnicas ITC-BT-19, 20, 21, 25 y 27'],['Montaje de sistemas de placa de yeso laminado','Normas UNE de placas de yeso laminado y ficha técnica del sistema de cada fabricante'],['Ensayos y tablas de alturas','Documentación del fabricante del sistema (perfiles, placas, lana y tornillos)']],'t')
+    h+=f'<section class="pg"><div class="hd"><span>Atlas técnico de obra</span><span><i>Anexos</i></span></div><div class="in"><div class="ttl"><div class="num">A.2</div><h1>Normativa de referencia</h1><div class="sub">Dónde está lo que aquí se resume.</div></div>'
+    h+=table(['Tema','Documento'],[['Suministro y evacuación de agua','CTE DB-HS4 y DB-HS5; prevención de legionelosis: RD 487/2022'],['Instalaciones térmicas (climatización)','RITE y normativa de gases fluorados'],['Aislamiento acústico','CTE DB-HR (Protección frente al ruido)'],['Resistencia al fuego','CTE DB-SI (Seguridad en caso de incendio)'],['Accesibilidad de mecanismos','CTE DB-SUA'],['Instalación eléctrica en baja tensión','REBT (Real Decreto 842/2002) e instrucciones técnicas ITC-BT-19, 20, 21, 25 y 27'],['Montaje de sistemas de placa de yeso laminado','Normas UNE de placas de yeso laminado y ficha técnica del sistema de cada fabricante'],['Ensayos y tablas de alturas','Documentación del fabricante del sistema (perfiles, placas, lana y tornillos)']],'t')
     h+='<div class="note"><b>Cómo usar este librito.</b> Es una guía de buena práctica en obra. Las cifras (separaciones, espesores, secciones, alturas) son valores habituales de referencia. Para proyectar o certificar manda siempre el proyecto, la normativa vigente y la ficha técnica del sistema elegido.</div>'
-    h+='<div class="sec" style="margin-top:6mm">Capítulos que se pueden desarrollar con el mismo detalle</div><div class="cols"><div>'+ul(['Solados cerámicos y vinílicos','Alicatados','Fontanería y saneamiento'],'k')+'</div><div>'+ul(['Falsos techos registrables','Carpintería interior y exterior','Climatización y ventilación'],'k')+'</div></div>'
+    h+='<div class="sec" style="margin-top:6mm">Capítulos cuyo detalle se puede ampliar</div><div class="cols"><div>'+ul(['Más detalle de solados y alicatados','Carpintería: más tipos de hueco','Cimentación: ejecución por fases'],'k')+'</div><div>'+ul(['Falsos techos registrables','Impermeabilización y cubiertas','Protección contra incendios: más detalle'],'k')+'</div></div>'
     h+=f'</div><div class="ft"><span>Guía de buena práctica.</span><span><b>{k+1}</b></span></div></section></body></html>'
     return h
 open('libro.html','w',encoding='utf-8').write(build())
